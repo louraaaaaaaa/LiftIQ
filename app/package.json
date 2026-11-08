@@ -1,0 +1,9 @@
+{
+  "name": "liftiq-phone-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dev-server.mjs",
+    "test": "node --test"
+  }
+}

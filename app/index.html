@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#101510">
+    <meta name="description" content="Track LiftIQ sets on your phone or computer.">
+    <title>LiftIQ | Set tracker</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="LiftIQ home">
+        <span class="brand-mark" aria-hidden="true">L</span>
+        <span>Lift<span class="brand-accent">IQ</span></span>
+      </a>
+      <button class="button button-connect" id="connectButton" type="button">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connectLabel">Connect sensor</span>
+      </button>
+    </header>
+
+    <main>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">TRAINING SESSION</p>
+          <h1>Your next set,<br class="mobile-break"> measured.</h1>
+          <p class="subheading">Live movement data, saved right on this device.</p>
+        </div>
+        <div class="sensor-status" id="sensorStatus" role="status" aria-live="polite">
+          <span class="status-light" aria-hidden="true"></span>
+          <span id="statusText">Sensor not connected</span>
+        </div>
+      </div>
+
+      <div class="notice" id="browserNotice" hidden></div>
+      <div class="notice notice-error" id="errorNotice" role="alert" hidden></div>
+
+      <section class="session-layout" aria-label="Current set">
+        <div class="card rep-card">
+          <div class="card-topline">
+            <span class="eyebrow">CURRENT SET</span>
+            <span class="phase-badge" id="phaseBadge">IDLE</span>
+          </div>
+          <div class="rep-value" id="repCount">0</div>
+          <div class="rep-caption">reps completed</div>
+          <div class="rep-divider"></div>
+          <div class="set-meta">
+            <label class="exercise-field">
+              <span class="eyebrow">EXERCISE / SET NAME</span>
+              <input id="exerciseInput" type="text" maxlength="60" placeholder="e.g. Lat pulldown" autocomplete="off">
+            </label>
+            <div class="elapsed-field">
+              <span class="eyebrow">TIME</span>
+              <strong id="elapsedTime">00:00</strong>
+            </div>
+          </div>
+          <div class="session-actions">
+            <button class="button button-primary" id="startButton" type="button" disabled>
+              <span aria-hidden="true">▶</span> Start set
+            </button>
+            <button class="button button-secondary" id="pauseButton" type="button" disabled>Pause</button>
+            <button class="button button-stop" id="stopButton" type="button" disabled>Stop</button>
+          </div>
+          <p class="helper-text" id="sessionMessage">Connect to your LiftIQ sensor to begin.</p>
+        </div>
+
+        <div class="telemetry-column">
+          <div class="metric-grid">
+            <article class="card metric-card">
+              <span class="metric-label">TOTAL ACCEL.</span>
+              <strong id="totalAccel">—<small> m/s²</small></strong>
+            </article>
+            <article class="card metric-card">
+              <span class="metric-label">DYNAMIC ACCEL.</span>
+              <strong id="dynamicAccel">—<small> m/s²</small></strong>
+            </article>
+            <article class="card metric-card metric-velocity">
+              <span class="metric-label">SPEED ESTIMATE</span>
+              <strong id="velocity">—<small> m/s</small></strong>
+              <span class="metric-footnote">Firmware estimate</span>
+            </article>
+            <article class="card metric-card metric-rate">
+              <span class="metric-label">SAMPLE RATE</span>
+              <strong id="sampleRate">—<small> Hz</small></strong>
+              <span class="metric-footnote">Live BLE updates</span>
+            </article>
+          </div>
+          <article class="card axes-card">
+            <div class="axes-heading">
+              <div>
+                <span class="metric-label">ACCELERATION AXES</span>
+                <span class="axes-unit">m/s²</span>
+              </div>
+              <div class="axis-values">
+                <span><i class="axis-dot axis-x"></i>X <b id="axisX">—</b></span>
+                <span><i class="axis-dot axis-y"></i>Y <b id="axisY">—</b></span>
+                <span><i class="axis-dot axis-z"></i>Z <b id="axisZ">—</b></span>
+              </div>
+            </div>
+            <canvas id="telemetryChart" aria-label="Recent acceleration and speed estimates" role="img"></canvas>
+            <div class="chart-legend">
+              <span><i class="legend-line legend-accel"></i>Dynamic acceleration</span>
+              <span><i class="legend-line legend-speed"></i>Speed estimate</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="history-section" aria-labelledby="historyTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">ON THIS DEVICE</p>
+            <h2 id="historyTitle">Set history</h2>
+          </div>
+          <span class="history-count" id="historyCount">0 sets saved</span>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="empty-history">
+            <span class="empty-icon" aria-hidden="true">↗</span>
+            <strong>No sets yet</strong>
+            <span>Your saved workouts and CSV files will show up here.</span>
+          </div>
+        </div>
+        <p class="storage-note" id="storageNote">Your set data and CSV exports are stored in this app on this device.</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>LiftIQ prototype</span>
+      <span>BLE · Saved privately on this device</span>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

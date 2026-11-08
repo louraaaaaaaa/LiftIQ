@@ -1,0 +1,20 @@
+# PlatformIO / ESP-IDF
+firmware/.pio/
+firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
+
+# Node / React Native / Flutter (app, once chosen)
+app/node_modules/
+app/build/
+app/.dart_tool/
+app/.gradle/
+
+# Python (tools/)
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

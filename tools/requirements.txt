@@ -1,0 +1,6 @@
+pyserial
+bleak
+ahrs
+numpy
+vpython
+matplotlib

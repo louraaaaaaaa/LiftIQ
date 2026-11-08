@@ -1,0 +1,19 @@
+{
+  "name": "LiftIQ Set Tracker",
+  "short_name": "LiftIQ",
+  "description": "Track LiftIQ workout sets over Bluetooth.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101510",
+  "theme_color": "#101510",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
