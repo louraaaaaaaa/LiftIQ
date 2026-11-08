@@ -35,6 +35,13 @@ Android. iOS Safari does not provide Web Bluetooth, so it cannot connect to
 the current firmware through this web app. A native iOS app would be a
 separate implementation.
 
+The GitHub Pages workflow in `.github/workflows/pages.yml` publishes only
+`app/` to the repository Pages site after a push to `main` or `master`. Once
+that workflow has been pushed and its first deployment succeeds, the app is
+available at `https://louraaaaaaaa.github.io/LiftIQ/`. Check the repository's
+**Settings → Pages** and **Actions** tabs if the URL still shows the README or
+the deployment is pending.
+
 The saved history is held in the browser's IndexedDB storage on that device;
 it is not synchronized or backed up. Clearing browser/site data can erase it.
 CSV exports remain in the app until a set is deleted, and a downloaded copy is
