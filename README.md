@@ -8,7 +8,7 @@ firmware, the phone app, and archived development sketches.
 
 - **Firmware:** [`firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`](firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino)
   advertises the `GymIQ Sensor` BLE service and streams live acceleration,
-  velocity estimate, phase, calibration status, and rep count.
+  velocity estimate, phase, calibration status, rep count, and battery voltage.
 - **Phone app:** [`app/`](app/README.md) is an installable, phone-first web app
   for connecting to the sensor, tracking a set, and keeping set history and
   CSV files in local app storage.
@@ -25,10 +25,16 @@ firmware, the phone app, and archived development sketches.
    <http://localhost:8000> in Chrome or Edge.
 3. For phone testing, publish `app/` to an HTTPS static host and open its URL
    in Chrome on Android. A LAN HTTP address does not grant Bluetooth access.
-4. Tap **Connect sensor**, select **GymIQ Sensor**, then tap **Start set**.
-   Keep the device still during calibration.
-5. Stop the set to save its samples and CSV in that browser's local history.
-   Use **↓ CSV** on a saved set to download a copy.
+4. Open **Sensor & settings**, tap **Connect sensor**, and select **GymIQ
+   Sensor**. Set the countdown, then start a workout and keep the device still
+   while it calibrates.
+5. Stop the set and confirm or correct the rep count. The samples and confirmed
+   count are saved in that browser's local history; use **History** → **↓ CSV**
+   to download a copy.
+
+Battery monitoring on D9 assumes an external 2:1 voltage divider. Verify the
+sensor wiring before use; a LiPo cell must not be connected directly to D9.
+See [hardware/BOM.md](hardware/BOM.md).
 
 Web Bluetooth works in Chrome/Edge on PC and Chromium-based browsers on
 Android. iOS Safari does not provide Web Bluetooth, so it cannot connect to

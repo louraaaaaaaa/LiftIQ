@@ -26,6 +26,7 @@ NOTIFY_CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 WRITE_CHARACTERISTIC_UUID = "cba8691a-1365-4a4f-a808-3fda13b292e0"
 CALIBRATION_STATUS = {0: None, 1: "started", 2: "complete", 3: "failed"}
 BLE_PACKET_FORMAT = "<6hBBH"
+BLE_PACKET_SIZE = struct.calcsize(BLE_PACKET_FORMAT)
 
 
 @dataclass(frozen=True)
@@ -92,11 +93,11 @@ def write_session_csv(path: Union[str, Path], records: List[Dict[str, object]]) 
 def parse_ble_packet(
     data: bytes,
 ) -> Optional[Tuple[TelemetrySample, Optional[str]]]:
-    """Decode the firmware's fixed 16-byte BLE notification packet."""
-    if len(data) != struct.calcsize(BLE_PACKET_FORMAT):
+    """Decode legacy 16-byte or current 18-byte BLE telemetry notifications."""
+    if len(data) not in (BLE_PACKET_SIZE, BLE_PACKET_SIZE + 2):
         return None
 
-    encoded = struct.unpack(BLE_PACKET_FORMAT, data)
+    encoded = struct.unpack_from(BLE_PACKET_FORMAT, data)
     ax, ay, az, total_accel, dynamic_accel = (value / 100.0 for value in encoded[:5])
     velocity = encoded[5] / 1000.0
     phase, calibration_status, rep_count = encoded[6:]

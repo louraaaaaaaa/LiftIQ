@@ -40,21 +40,27 @@ sensor to be nearby and connected.
 
 ## Using the app
 
-1. Power on the sensor and tap **Connect sensor**.
+1. Open **Sensor & settings**, power on the sensor, and tap **Connect sensor**.
 2. Select **GymIQ Sensor** in the browser's Bluetooth device picker. No UUID
    input is needed. If Android asks for permission or pairing, approve it.
-3. Optionally enter an exercise name, then tap **Start set**. Keep the sensor
-   still while it calibrates.
-4. Pause/resume or stop the set. Pausing suspends sample logging and plots,
-   while the rep count continues to follow the sensor. Stopping saves all
-   captured telemetry and a CSV in the app's local history.
-5. Tap **↓ CSV** to download a copy of the saved CSV, or **Delete** to remove
+3. Check Bluetooth, telemetry, calibration, and the estimated battery status
+   on the sensor page. Set the start countdown there (3 seconds by default).
+   Battery monitoring requires the D9 divider wiring documented in
+   [`hardware/BOM.md`](../hardware/BOM.md).
+4. Optionally enter an exercise name on **Workout**, then tap **Start set**.
+   The app runs the countdown and calibrates the sensor before recording.
+   Keep it still during calibration.
+5. Pause/resume or stop the set. Pausing suspends sample logging and plots,
+   while the rep count continues to follow the sensor. After stopping, confirm
+   the detected reps or enter your actual count; the confirmed count is saved
+   with the samples.
+6. Tap **History**, then **↓ CSV** to download a copy of the saved CSV, or **Delete** to remove
    both the session and its CSV from this device.
 
 The CSV columns include elapsed time, XYZ acceleration, total and dynamic
 acceleration, the firmware velocity estimate, phase name and ID, rep count,
-and measured notification rate. Paused samples are omitted, while elapsed
-time retains the pause gap.
+and the user-confirmed actual rep count. Sample-rate data is not included.
+Paused samples are omitted, while elapsed time retains the pause gap.
 
 Set history and CSV data are local to the browser on this device. The app asks
 the browser to protect its storage from automatic cleanup, but this is not a

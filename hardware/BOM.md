@@ -5,7 +5,7 @@
 | Seeed 113991114 | XIAO ESP32-S3, Wi-Fi + BT | MCU, small footprint |
 | GY-BMI160 | 6-DOF accel + gyro breakout | I2C, confirmed at address 0x68 (SAO/SDO -> GND) |
 | SSD1306 0.91" 128x32 | OLED display | I2C, shares bus with IMU |
-| Battery | TBD | single-cell LiPo, capacity/connector TBD |
+| Battery | single-cell LiPo | Capacity/connector TBD; D9 voltage monitoring requires an external 2:1 divider |
 | Button | TBD | set start/stop |
 | LED | TBD | status indicator |
 
@@ -15,6 +15,23 @@
 |---|---|---|
 | I2C SDA | D4 | GPIO5 |
 | I2C SCL | D5 | GPIO6 |
+| Battery monitor | D9 | GPIO8 / ADC; connect only through the specified divider |
+
+### Battery monitor input
+
+The current BLE firmware assumes a 2:1 resistive divider between the LiPo
+positive terminal and D9: 47 kΩ from battery positive to D9, and 47 kΩ from
+D9 to ground. Add a 100 nF capacitor from D9 to ground to reduce ADC noise.
+Battery negative, divider ground, and XIAO ground must be common. With a
+single-cell LiPo this keeps the ADC pin near or below 2.1 V at full charge.
+**Do not connect a LiPo cell directly to D9.** Verify the board's existing
+wiring with a multimeter before connecting or flashing this firmware; if a
+different divider is already installed, update the firmware's
+`BATTERY_DIVIDER_RATIO` to match it.
+
+The app estimates charge from the reported voltage, not from a battery
+fuel-gauge IC. The estimate varies with cell chemistry, load, temperature, and
+whether the cell is resting or charging.
 
 Shared I2C bus for BMI160 + SSD1306 (different addresses, no conflict
 expected — SSD1306 is typically 0x3C/0x3D). BMI160 confirmed at 0x68 via

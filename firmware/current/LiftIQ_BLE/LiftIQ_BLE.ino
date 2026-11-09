@@ -12,7 +12,9 @@
 // --- HARDWARE CONFIGURATION ---
 const int PIN_SDA = 5;
 const int PIN_SCL = 6;
+const int PIN_BATTERY = D9;
 const int8_t BMI160_I2C = 0x68;
+const float BATTERY_DIVIDER_RATIO = 2.0f;
 
 DFRobot_BMI160 bmi160;
 
@@ -31,6 +33,8 @@ BLECharacteristic *pWriteCharacteristic;
 bool deviceConnected = false;
 volatile bool calibrationRequested = false;
 unsigned long lastBleNotifyTime = 0;
+unsigned long lastBatteryReadTime = 0;
+uint16_t batteryVoltageMillivolts = 0;
 
 const uint8_t CALIBRATION_IDLE = 0;
 const uint8_t CALIBRATION_STARTED = 1;
@@ -114,6 +118,12 @@ int16_t scaledInt16(float value, float scale) {
   return (int16_t)lroundf(scaled);
 }
 
+uint16_t readBatteryMillivolts() {
+  const uint32_t pinMillivolts = analogReadMilliVolts(PIN_BATTERY);
+  const uint32_t batteryMillivolts = (uint32_t)lroundf(pinMillivolts * BATTERY_DIVIDER_RATIO);
+  return batteryMillivolts > 65535 ? 65535 : (uint16_t)batteryMillivolts;
+}
+
 void notifyTelemetry(
   float ax,
   float ay,
@@ -132,8 +142,8 @@ void notifyTelemetry(
   }
   lastBleNotifyTime = now;
 
-  // Six scaled int16 values, phase, calibration status, and uint16 rep count.
-  // Little-endian packet, 16 bytes total (fits the default BLE MTU).
+  // Six scaled int16 values, phase, calibration status, rep count, battery mV.
+  // Little-endian packet, 18 bytes total (fits the default BLE MTU).
   int16_t values[6] = {
     scaledInt16(ax, 100.0f),
     scaledInt16(ay, 100.0f),
@@ -142,7 +152,7 @@ void notifyTelemetry(
     scaledInt16(dynamicAccel, 100.0f),
     scaledInt16(velocity, 1000.0f)
   };
-  uint8_t payload[16];
+  uint8_t payload[18];
   for (uint8_t i = 0; i < 6; i++) {
     uint16_t encoded = (uint16_t)values[i];
     payload[i * 2] = (uint8_t)(encoded & 0xFF);
@@ -152,6 +162,8 @@ void notifyTelemetry(
   payload[13] = status;
   payload[14] = (uint8_t)(repCount & 0xFF);
   payload[15] = (uint8_t)((repCount >> 8) & 0xFF);
+  payload[16] = (uint8_t)(batteryVoltageMillivolts & 0xFF);
+  payload[17] = (uint8_t)(batteryVoltageMillivolts >> 8);
 
   pNotifyCharacteristic->setValue(payload, sizeof(payload));
   pNotifyCharacteristic->notify();
@@ -237,6 +249,7 @@ void setup() {
 
   Serial.println("\n=== LiftIQ / openGym Firmware Booting ===");
 
+  pinMode(PIN_BATTERY, INPUT);
   Wire.begin(PIN_SDA, PIN_SCL);
 
   // Initialize BMI160 Sensor
@@ -290,6 +303,10 @@ void loop() {
   serviceCalibrationRequest();
 
   unsigned long currentTime = millis();
+  if (currentTime - lastBatteryReadTime >= 1000) {
+    batteryVoltageMillivolts = readBatteryMillivolts();
+    lastBatteryReadTime = currentTime;
+  }
   float dt = (currentTime - lastSampleTime) / 1000.0f; // Delta t in seconds
   lastSampleTime = currentTime;
 

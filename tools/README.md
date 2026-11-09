@@ -114,9 +114,11 @@ rep count, and measured sample rate. Time remains elapsed session time while
 paused, so the CSV preserves pauses as gaps; no samples are captured during
 those gaps.
 
-BLE telemetry is sent at up to 50 Hz using 16-byte notifications: six
+BLE telemetry is sent at up to 50 Hz using 18-byte notifications: six
 little-endian signed 16-bit values (acceleration and magnitudes scaled by
-100, velocity by 1000), phase, calibration status, and a 16-bit rep count.
+100, velocity by 1000), phase, calibration status, a 16-bit rep count, and
+battery voltage in millivolts. The dashboard also accepts legacy 16-byte
+notifications, which do not include battery voltage.
 Acceleration is displayed in m/s^2, including gravity in the raw XYZ and
 total-acceleration values.
 

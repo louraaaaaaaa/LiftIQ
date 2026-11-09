@@ -16,29 +16,32 @@
         <span class="brand-mark" aria-hidden="true">L</span>
         <span>Lift<span class="brand-accent">IQ</span></span>
       </a>
-      <button class="button button-connect" id="connectButton" type="button">
-        <span class="connection-dot" aria-hidden="true"></span>
-        <span id="connectLabel">Connect sensor</span>
-      </button>
+      <div class="sensor-status top-status" id="sensorStatus" role="status" aria-live="polite">
+        <span class="status-light" aria-hidden="true"></span>
+        <span id="statusText">Sensor not connected</span>
+      </div>
     </header>
 
     <main>
-      <div class="page-heading">
-        <div>
-          <p class="eyebrow">TRAINING SESSION</p>
-          <h1>Your next set,<br class="mobile-break"> measured.</h1>
-          <p class="subheading">Live movement data, saved right on this device.</p>
-        </div>
-        <div class="sensor-status" id="sensorStatus" role="status" aria-live="polite">
-          <span class="status-light" aria-hidden="true"></span>
-          <span id="statusText">Sensor not connected</span>
-        </div>
-      </div>
+      <nav class="tabbar" aria-label="App pages">
+        <button class="tab-button is-selected" id="workoutTab" type="button" aria-current="page">Workout</button>
+        <button class="tab-button" id="sensorTab" type="button">Sensor &amp; settings</button>
+        <button class="tab-button" id="historyTab" type="button">History</button>
+      </nav>
 
       <div class="notice" id="browserNotice" hidden></div>
       <div class="notice notice-error" id="errorNotice" role="alert" hidden></div>
 
-      <section class="session-layout" aria-label="Current set">
+      <section id="workoutPage" class="app-page">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">TRAINING SESSION</p>
+            <h1>Your next set,<br class="mobile-break"> measured.</h1>
+            <p class="subheading">Live movement data, saved right on this device.</p>
+          </div>
+        </div>
+
+        <div class="session-layout" aria-label="Current set">
         <div class="card rep-card">
           <div class="card-topline">
             <span class="eyebrow">CURRENT SET</span>
@@ -74,18 +77,13 @@
               <strong id="totalAccel">—<small> m/s²</small></strong>
             </article>
             <article class="card metric-card">
-              <span class="metric-label">DYNAMIC ACCEL.</span>
+              <span class="metric-label">RELATIVE ACCEL.</span>
               <strong id="dynamicAccel">—<small> m/s²</small></strong>
             </article>
             <article class="card metric-card metric-velocity">
               <span class="metric-label">SPEED ESTIMATE</span>
               <strong id="velocity">—<small> m/s</small></strong>
               <span class="metric-footnote">Firmware estimate</span>
-            </article>
-            <article class="card metric-card metric-rate">
-              <span class="metric-label">SAMPLE RATE</span>
-              <strong id="sampleRate">—<small> Hz</small></strong>
-              <span class="metric-footnote">Live BLE updates</span>
             </article>
           </div>
           <article class="card axes-card">
@@ -107,9 +105,87 @@
             </div>
           </article>
         </div>
+        </div>
       </section>
 
-      <section class="history-section" aria-labelledby="historyTitle">
+      <section id="sensorPage" class="app-page" hidden aria-labelledby="sensorTitle">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">DEVICE MANAGEMENT</p>
+            <h1 id="sensorTitle">Sensor &amp; settings</h1>
+            <p class="subheading">Connect, calibrate, and check device health.</p>
+          </div>
+        </div>
+        <div class="sensor-page-grid">
+          <article class="card sensor-card">
+            <div class="card-topline">
+              <div>
+                <p class="eyebrow">LIFTIQ SENSOR</p>
+                <h2 class="sensor-card-title" id="sensorName">Not connected</h2>
+              </div>
+              <span class="device-icon" aria-hidden="true">⌁</span>
+            </div>
+            <p class="sensor-copy">Connect to the nearby GymIQ Sensor. Keep Bluetooth enabled and close other apps using the sensor.</p>
+            <div class="sensor-actions">
+              <button class="button button-primary" id="connectButton" type="button">
+                <span class="connection-dot" aria-hidden="true"></span>
+                <span id="connectLabel">Connect sensor</span>
+              </button>
+              <button class="button button-secondary" id="calibrateButton" type="button" disabled>Calibrate sensor</button>
+            </div>
+          </article>
+          <article class="card device-status-card">
+            <p class="eyebrow">DEVICE STATUS</p>
+            <div class="device-status-row">
+              <span>Bluetooth</span>
+              <strong id="bluetoothState">Disconnected</strong>
+            </div>
+            <div class="device-status-row">
+              <span>Sensor stream</span>
+              <strong id="streamState">Waiting for connection</strong>
+            </div>
+            <div class="device-status-row">
+              <span>Calibration</span>
+              <strong id="calibrationState">Not calibrated this session</strong>
+            </div>
+            <div class="battery-panel">
+              <div class="battery-icon" aria-hidden="true"><span id="batteryLevelFill"></span></div>
+              <div class="battery-info">
+                <span class="eyebrow">LIPO BATTERY · ESTIMATE</span>
+                <strong id="batteryValue">—%</strong>
+                <small id="batteryVoltage">Waiting for sensor data</small>
+              </div>
+            </div>
+            <p class="sensor-footnote">Battery percentage is estimated from voltage at D9. Use the specified divider; it is not a fuel-gauge measurement.</p>
+          </article>
+          <article class="card settings-card">
+            <div>
+              <p class="eyebrow">WORKOUT SETTINGS</p>
+              <h2 class="sensor-card-title">Start countdown</h2>
+              <p class="sensor-copy">A short ready-set countdown runs before the sensor calibrates.</p>
+            </div>
+            <label class="countdown-setting" for="countdownSetting">
+              <span>Seconds before calibration</span>
+              <select id="countdownSetting">
+                <option value="0">Off</option>
+                <option value="1">1 second</option>
+                <option value="2">2 seconds</option>
+                <option value="3" selected>3 seconds</option>
+                <option value="4">4 seconds</option>
+                <option value="5">5 seconds</option>
+                <option value="6">6 seconds</option>
+                <option value="7">7 seconds</option>
+                <option value="8">8 seconds</option>
+                <option value="9">9 seconds</option>
+                <option value="10">10 seconds</option>
+              </select>
+            </label>
+            <p class="sensor-footnote">Your choice is saved on this device. The default is 3 seconds.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="historyPage" class="app-page history-section" hidden aria-labelledby="historyTitle">
         <div class="section-heading">
           <div>
             <p class="eyebrow">ON THIS DEVICE</p>
@@ -127,6 +203,47 @@
         <p class="storage-note" id="storageNote">Your set data and CSV exports are stored in this app on this device.</p>
       </section>
     </main>
+
+    <div class="modal-backdrop" id="countdownDialog" hidden>
+      <section class="modal-card countdown-card" role="dialog" aria-modal="true" aria-labelledby="countdownTitle">
+        <p class="eyebrow">GET READY</p>
+        <h2 id="countdownTitle">Set starts in</h2>
+        <div class="countdown-number" id="countdownNumber" aria-live="assertive">3</div>
+        <p class="modal-copy">Get into position. Keep still when calibration begins.</p>
+        <button class="button button-secondary modal-cancel" id="cancelCountdownButton" type="button">Cancel</button>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="repReviewDialog" hidden>
+      <section class="modal-card rep-review-card" role="dialog" aria-modal="true" aria-labelledby="repReviewTitle">
+        <div class="rep-review-question" id="repReviewQuestion">
+          <p class="eyebrow">SET COMPLETE</p>
+          <h2 id="repReviewTitle">Did you complete <span id="detectedRepCount">0</span> reps?</h2>
+          <p class="modal-copy">Check the sensor count before saving your set.</p>
+          <div class="review-actions">
+            <button class="button button-primary" id="confirmRepsButton" type="button">Yes, that's right</button>
+            <button class="button button-secondary" id="correctRepsButton" type="button">No, correct it</button>
+          </div>
+        </div>
+        <form class="rep-correction" id="repCorrectionForm" hidden>
+          <p class="eyebrow">CORRECT THE COUNT</p>
+          <h2>How many reps did you actually do?</h2>
+          <label for="actualRepCount">Your rep count</label>
+          <input id="actualRepCount" type="number" inputmode="numeric" min="0" max="999" required>
+          <div class="review-actions">
+            <button class="button button-secondary" id="backToRepReviewButton" type="button">Back</button>
+            <button class="button button-primary" type="submit">Save actual reps</button>
+          </div>
+        </form>
+        <div class="rep-celebration" id="repCelebration" hidden>
+          <div class="celebration-ring"><span aria-hidden="true">✓</span></div>
+          <p class="eyebrow">NICE WORK</p>
+          <h2><span id="celebratedRepCount">0</span> reps saved</h2>
+          <p class="modal-copy" id="repSaveMessage">Your set is saved on this device.</p>
+          <button class="button button-primary" id="finishReviewButton" type="button">Done</button>
+        </div>
+      </section>
+    </div>
 
     <footer>
       <span>LiftIQ prototype</span>

@@ -9,13 +9,14 @@ import {
   WRITE_UUID,
 } from "../protocol.js";
 
-function packet({ phase = 0, calibration = 0, reps = 0 } = {}) {
-  const buffer = new ArrayBuffer(16);
+function packet({ phase = 0, calibration = 0, reps = 0, batteryMillivolts = 3900 } = {}) {
+  const buffer = new ArrayBuffer(18);
   const view = new DataView(buffer);
   [123, -234, 978, 979, 2, 150].forEach((value, index) => view.setInt16(index * 2, value, true));
   view.setUint8(12, phase);
   view.setUint8(13, calibration);
   view.setUint16(14, reps, true);
+  view.setUint16(16, batteryMillivolts, true);
   return view;
 }
 
@@ -26,7 +27,7 @@ test("targets the current firmware's advertised BLE service and characteristics"
   assert.equal(WRITE_UUID, "cba8691a-1365-4a4f-a808-3fda13b292e0");
 });
 
-test("decodes the firmware's little-endian 16-byte notification", () => {
+test("decodes the firmware's little-endian 18-byte notification", () => {
   assert.deepEqual(decodeTelemetry(packet({ phase: 2, reps: 260 })), {
     ax: 1.23,
     ay: -2.34,
@@ -37,12 +38,16 @@ test("decodes the firmware's little-endian 16-byte notification", () => {
     phase: 2,
     calibration: null,
     repCount: 260,
+    batteryMillivolts: 3900,
   });
 });
 
 test("returns calibration updates and rejects invalid packets", () => {
   assert.equal(decodeTelemetry(packet({ calibration: 2 })).calibration, "complete");
+  const legacyPacket = packet();
+  assert.equal(decodeTelemetry(new DataView(legacyPacket.buffer, 0, 16)).batteryMillivolts, null);
   assert.equal(decodeTelemetry(new DataView(new ArrayBuffer(15))), null);
+  assert.equal(decodeTelemetry(new DataView(new ArrayBuffer(17))), null);
   assert.equal(decodeTelemetry(packet({ phase: 3 })), null);
   assert.equal(decodeTelemetry(packet({ calibration: 4 })), null);
 });
@@ -59,9 +64,11 @@ test("writes every sample column and safely quotes CSV values", () => {
     phase: 'CONCENTRIC, "up"',
     phase_id: 1,
     rep_count: 3,
-    sample_rate_hz: 50,
+    actual_rep_count: 4,
   }]);
-  assert.match(csv, /elapsed_s,ax_m_s2,ay_m_s2,az_m_s2,total_accel_m_s2,dynamic_accel_m_s2,velocity_estimate_m_s,phase,phase_id,rep_count,sample_rate_hz/);
+  assert.match(csv, /elapsed_s,ax_m_s2,ay_m_s2,az_m_s2,total_accel_m_s2,dynamic_accel_m_s2,velocity_estimate_m_s,phase,phase_id,rep_count,actual_rep_count/);
   assert.match(csv, /"CONCENTRIC, ""up"""/);
+  assert.match(csv, /,3,4\r\n/);
+  assert.doesNotMatch(csv, /sample_rate/);
   assert.equal(csv.trimEnd().split("\r\n").length, 2);
 });

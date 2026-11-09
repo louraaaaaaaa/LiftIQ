@@ -49,6 +49,26 @@ class FirmwareDebugParserTests(unittest.TestCase):
         self.assertEqual(sample.rep_count, 7)
         self.assertIsNone(status)
 
+    def test_parses_current_packet_with_appended_battery_voltage(self):
+        packet = struct.pack(
+            "<6hBBHH",
+            123,
+            -234,
+            978,
+            979,
+            2,
+            150,
+            2,
+            0,
+            7,
+            3900,
+        )
+
+        decoded = parse_ble_packet(packet)
+
+        self.assertIsNotNone(decoded)
+        self.assertEqual(decoded[0].rep_count, 7)
+
     def test_decodes_ble_calibration_status(self):
         for encoded_status, expected_status in (
             (1, "started"),
@@ -65,6 +85,7 @@ class FirmwareDebugParserTests(unittest.TestCase):
 
     def test_rejects_malformed_ble_packet(self):
         self.assertIsNone(parse_ble_packet(b"short"))
+        self.assertIsNone(parse_ble_packet(bytes(17)))
         invalid_phase = struct.pack("<6hBBH", 0, 0, 0, 0, 0, 0, 4, 0, 0)
         self.assertIsNone(parse_ble_packet(invalid_phase))
         invalid_status = struct.pack("<6hBBH", 0, 0, 0, 0, 0, 0, 0, 4, 0)
