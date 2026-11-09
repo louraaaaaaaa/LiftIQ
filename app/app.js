@@ -20,7 +20,7 @@ const elements = Object.fromEntries(
   [
     "connectButton", "connectLabel", "sensorStatus", "statusText", "browserNotice",
     "errorNotice", "repCount", "phaseBadge", "totalAccel", "dynamicAccel",
-    "velocity", "axisX", "axisY", "axisZ", "telemetryChart",
+    "axisX", "axisY", "axisZ", "telemetryChart",
     "exerciseInput", "elapsedTime", "startButton", "pauseButton", "stopButton",
     "sessionMessage", "historyCount", "historyList", "storageNote",
     "workoutTab", "sensorTab", "historyTab", "workoutPage", "sensorPage",
@@ -153,7 +153,6 @@ function resetLiveValues() {
   elements.phaseBadge.classList.remove("phase-active");
   elements.totalAccel.innerHTML = "—<small> m/s²</small>";
   elements.dynamicAccel.innerHTML = "—<small> m/s²</small>";
-  elements.velocity.innerHTML = "—<small> m/s</small>";
   elements.axisX.textContent = "—";
   elements.axisY.textContent = "—";
   elements.axisZ.textContent = "—";
@@ -513,7 +512,6 @@ function onTelemetry(event) {
   elements.axisZ.textContent = reading.az.toFixed(2);
   elements.totalAccel.innerHTML = `${reading.totalAccel.toFixed(2)}<small> m/s²</small>`;
   elements.dynamicAccel.innerHTML = `${reading.dynamicAccel.toFixed(2)}<small> m/s²</small>`;
-  elements.velocity.innerHTML = `${reading.velocity.toFixed(2)}<small> m/s</small>`;
 
   const now = performance.now();
   if (captureState === "recording" && session?.startedAt) {
@@ -525,7 +523,6 @@ function onTelemetry(event) {
       az_m_s2: reading.az,
       total_accel_m_s2: reading.totalAccel,
       dynamic_accel_m_s2: reading.dynamicAccel,
-      velocity_estimate_m_s: reading.velocity,
       phase: PHASE_NAMES[reading.phase],
       phase_id: reading.phase,
       rep_count: reading.repCount,
@@ -534,7 +531,7 @@ function onTelemetry(event) {
     session.sampleCount = session.samples.length;
   }
 
-  chartValues.push({ accel: reading.dynamicAccel, speed: reading.velocity });
+  chartValues.push({ accel: reading.dynamicAccel });
   if (chartValues.length > MAX_CHART_POINTS) chartValues.shift();
   scheduleChart();
   updateElapsed();
@@ -687,7 +684,6 @@ function drawChart() {
     context.stroke();
   };
   drawSeries("accel", "#c5f36b");
-  drawSeries("speed", "#8aa6ff");
 }
 
 function scheduleChart() {

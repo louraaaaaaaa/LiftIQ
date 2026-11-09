@@ -8,7 +8,8 @@ firmware, the phone app, and archived development sketches.
 
 - **Firmware:** [`firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`](firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino)
   advertises the `GymIQ Sensor` BLE service and streams live acceleration,
-  velocity estimate, phase, calibration status, rep count, and battery voltage.
+  acceleration-based phase, calibration status, rep count, and battery voltage.
+  Speed estimation is disabled because the IMU-only estimate drifted in tests.
 - **Phone app:** [`app/`](app/README.md) is an installable, phone-first web app
   for connecting to the sensor, tracking a set, and keeping set history and
   CSV files in local app storage.

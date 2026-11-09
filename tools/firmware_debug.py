@@ -36,7 +36,6 @@ class TelemetrySample:
     az: float
     total_accel: float
     dynamic_accel: float
-    velocity: float
     phase: int
     rep_count: Optional[int]
 
@@ -74,7 +73,6 @@ CSV_COLUMNS = (
     "az_m_s2",
     "total_accel_m_s2",
     "dynamic_accel_m_s2",
-    "velocity_estimate_m_s",
     "phase",
     "phase_id",
     "rep_count",
@@ -96,10 +94,9 @@ def parse_ble_packet(
     """Decode legacy 16-byte or current 18-byte BLE telemetry notifications."""
     if len(data) not in (BLE_PACKET_SIZE, BLE_PACKET_SIZE + 2):
         return None
-
     encoded = struct.unpack_from(BLE_PACKET_FORMAT, data)
     ax, ay, az, total_accel, dynamic_accel = (value / 100.0 for value in encoded[:5])
-    velocity = encoded[5] / 1000.0
+    ax, ay, az, total_accel, dynamic_accel = (value / 100.0 for value in encoded[:5])
     phase, calibration_status, rep_count = encoded[6:]
     if phase not in PHASE_NAMES or calibration_status not in CALIBRATION_STATUS:
         return None
@@ -110,7 +107,6 @@ def parse_ble_packet(
         az=az,
         total_accel=total_accel,
         dynamic_accel=dynamic_accel,
-        velocity=velocity,
         phase=phase,
         rep_count=rep_count,
     )
@@ -255,19 +251,18 @@ class DebugDashboard:
 
         self.figure = Figure(figsize=(11, 7), constrained_layout=True)
         grid = self.figure.add_gridspec(
-            5, 4, height_ratios=(0.55, 0.55, 1.8, 1.25, 1.25)
+            4, 4, height_ratios=(0.55, 0.55, 1.8, 1.25)
         )
         self.metric_values = []
         metric_titles = (
             "Acceleration XYZ (m/s^2)",
             "Total acceleration (m/s^2)",
             "Dynamic acceleration (m/s^2)",
-            "Velocity estimate (m/s)",
             "Current phase",
             "Rep count",
             "Sample rate",
         )
-        metric_positions = ((0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2))
+        metric_positions = ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2))
         for title, (row, column) in zip(metric_titles, metric_positions):
             axis = self.figure.add_subplot(grid[row, column])
             axis.set_axis_off()
@@ -290,7 +285,6 @@ class DebugDashboard:
 
         self.ax_accel = self.figure.add_subplot(grid[2, :])
         self.ax_magnitude = self.figure.add_subplot(grid[3, :], sharex=self.ax_accel)
-        self.ax_velocity = self.figure.add_subplot(grid[4, :], sharex=self.ax_accel)
 
         (self.line_x,) = self.ax_accel.plot([], [], label="X")
         (self.line_y,) = self.ax_accel.plot([], [], label="Y")
@@ -306,12 +300,6 @@ class DebugDashboard:
         self.ax_magnitude.set_ylabel("m/s^2")
         self.ax_magnitude.legend(loc="upper right")
         self.ax_magnitude.grid(True, alpha=0.3)
-
-        (self.line_velocity,) = self.ax_velocity.plot([], [], color="tab:purple")
-        self.ax_velocity.set_title("Firmware velocity estimate")
-        self.ax_velocity.set_ylabel("m/s")
-        self.ax_velocity.set_xlabel("Time (s)")
-        self.ax_velocity.grid(True, alpha=0.3)
 
         controls = ttk.Frame(self.root, padding=(8, 4))
         controls.pack(side=tk.BOTTOM, fill=tk.X)
@@ -458,7 +446,6 @@ class DebugDashboard:
         self.accel_z = deque()
         self.total_accel = deque()
         self.dynamic_accel = deque()
-        self.velocity = deque()
 
     def _capture_sample(self, event: SampleEvent) -> None:
         if event.timestamp < self.session_start_time:
@@ -481,7 +468,6 @@ class DebugDashboard:
         self.accel_z.append(sample.az)
         self.total_accel.append(sample.total_accel)
         self.dynamic_accel.append(sample.dynamic_accel)
-        self.velocity.append(sample.velocity)
         self.session_records.append(
             {
                 "elapsed_s": round(elapsed, 6),
@@ -490,7 +476,6 @@ class DebugDashboard:
                 "az_m_s2": sample.az,
                 "total_accel_m_s2": sample.total_accel,
                 "dynamic_accel_m_s2": sample.dynamic_accel,
-                "velocity_estimate_m_s": sample.velocity,
                 "phase": PHASE_NAMES[sample.phase],
                 "phase_id": sample.phase,
                 "rep_count": self.rep_count,
@@ -678,16 +663,14 @@ class DebugDashboard:
                 self.line_z,
                 self.line_total,
                 self.line_dynamic,
-                self.line_velocity,
             ):
                 line.set_data([], [])
             for text in self.metric_values:
                 text.set_text("—")
             if self.capture_state == "stopped":
-                self.metric_values[5].set_text(str(self.rep_count))
+                self.metric_values[4].set_text(str(self.rep_count))
             self.ax_accel.set_xlim(0, self.window_seconds)
             self.ax_magnitude.set_xlim(0, self.window_seconds)
-            self.ax_velocity.set_xlim(0, self.window_seconds)
             self.canvas.draw_idle()
             return
 
@@ -701,7 +684,6 @@ class DebugDashboard:
                 self.accel_z,
                 self.total_accel,
                 self.dynamic_accel,
-                self.velocity,
             ):
                 samples.popleft()
 
@@ -714,7 +696,6 @@ class DebugDashboard:
             sample,
             f"{self.total_accel[-1]:.2f}",
             f"{self.dynamic_accel[-1]:.2f}",
-            f"{self.velocity[-1]:.2f}",
             PHASE_NAMES.get(self.current_phase, "UNKNOWN"),
             str(self.rep_count),
             f"{rate:.1f} Hz",
@@ -727,10 +708,9 @@ class DebugDashboard:
         self.line_z.set_data(self.times, self.accel_z)
         self.line_total.set_data(self.times, self.total_accel)
         self.line_dynamic.set_data(self.times, self.dynamic_accel)
-        self.line_velocity.set_data(self.times, self.velocity)
         left = max(0.0, latest - self.window_seconds)
         right = max(self.window_seconds, latest)
-        for axis in (self.ax_accel, self.ax_magnitude, self.ax_velocity):
+        for axis in (self.ax_accel, self.ax_magnitude):
             axis.set_xlim(left, right)
             axis.relim()
             axis.autoscale_view(scalex=False)

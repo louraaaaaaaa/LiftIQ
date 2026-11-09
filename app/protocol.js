@@ -47,7 +47,6 @@ export const CSV_COLUMNS = [
   "az_m_s2",
   "total_accel_m_s2",
   "dynamic_accel_m_s2",
-  "velocity_estimate_m_s",
   "phase",
   "phase_id",
   "rep_count",

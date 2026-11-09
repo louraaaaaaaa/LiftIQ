@@ -58,8 +58,10 @@ sensor to be nearby and connected.
    both the session and its CSV from this device.
 
 The CSV columns include elapsed time, XYZ acceleration, total and dynamic
-acceleration, the firmware velocity estimate, phase name and ID, rep count,
-and the user-confirmed actual rep count. Sample-rate data is not included.
+acceleration, phase name and ID, rep count, and the user-confirmed actual rep
+count. Sample-rate and speed estimates are not included. The current firmware
+uses acceleration-only phase and rep heuristics; phase labels indicate motion
+events rather than a direct measurement of movement direction.
 Paused samples are omitted, while elapsed time retains the pause gap.
 
 Set history and CSV data are local to the browser on this device. The app asks

@@ -44,7 +44,6 @@ class FirmwareDebugParserTests(unittest.TestCase):
         self.assertEqual((sample.ax, sample.ay, sample.az), (1.23, -2.34, 9.78))
         self.assertEqual(sample.total_accel, 9.79)
         self.assertEqual(sample.dynamic_accel, 0.02)
-        self.assertEqual(sample.velocity, 0.15)
         self.assertEqual(sample.phase, 2)
         self.assertEqual(sample.rep_count, 7)
         self.assertIsNone(status)
@@ -99,7 +98,6 @@ class FirmwareDebugParserTests(unittest.TestCase):
             "az_m_s2": 9.0,
             "total_accel_m_s2": 9.3,
             "dynamic_accel_m_s2": 0.5,
-            "velocity_estimate_m_s": 0.2,
             "phase": "CONCENTRIC",
             "phase_id": 1,
             "rep_count": 3,
@@ -116,7 +114,7 @@ class FirmwareDebugParserTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["rep_count"], "3")
         self.assertEqual(rows[0]["phase"], "CONCENTRIC")
-        self.assertEqual(rows[0]["velocity_estimate_m_s"], "0.2")
+        self.assertNotIn("velocity_estimate_m_s", rows[0])
 
     def test_capture_records_every_plot_value_with_elapsed_time_and_rate(self):
         dashboard = DebugDashboard.__new__(DebugDashboard)
@@ -131,8 +129,7 @@ class FirmwareDebugParserTests(unittest.TestCase):
         dashboard.accel_z = deque()
         dashboard.total_accel = deque()
         dashboard.dynamic_accel = deque()
-        dashboard.velocity = deque()
-        sample = TelemetrySample(1, 2, 9, 9.3, 0.5, 0.2, 1, 3)
+        sample = TelemetrySample(1, 2, 9, 9.3, 0.5, 1, 3)
 
         dashboard._capture_sample(SampleEvent(sample, 10.01))
         dashboard._capture_sample(SampleEvent(sample, 10.02))
@@ -142,6 +139,7 @@ class FirmwareDebugParserTests(unittest.TestCase):
         self.assertEqual(dashboard.session_records[0]["ax_m_s2"], 1)
         self.assertEqual(dashboard.session_records[0]["phase"], "CONCENTRIC")
         self.assertEqual(dashboard.session_records[0]["rep_count"], 3)
+        self.assertNotIn("velocity_estimate_m_s", dashboard.session_records[0])
         self.assertEqual(dashboard.session_records[1]["sample_rate_hz"], 100.0)
 
 

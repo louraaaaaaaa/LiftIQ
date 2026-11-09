@@ -60,15 +60,15 @@ test("writes every sample column and safely quotes CSV values", () => {
     az_m_s2: 9,
     total_accel_m_s2: 9.3,
     dynamic_accel_m_s2: 0.5,
-    velocity_estimate_m_s: 0.2,
     phase: 'CONCENTRIC, "up"',
     phase_id: 1,
     rep_count: 3,
     actual_rep_count: 4,
   }]);
-  assert.match(csv, /elapsed_s,ax_m_s2,ay_m_s2,az_m_s2,total_accel_m_s2,dynamic_accel_m_s2,velocity_estimate_m_s,phase,phase_id,rep_count,actual_rep_count/);
+  assert.match(csv, /elapsed_s,ax_m_s2,ay_m_s2,az_m_s2,total_accel_m_s2,dynamic_accel_m_s2,phase,phase_id,rep_count,actual_rep_count/);
   assert.match(csv, /"CONCENTRIC, ""up"""/);
   assert.match(csv, /,3,4\r\n/);
   assert.doesNotMatch(csv, /sample_rate/);
+  assert.doesNotMatch(csv, /velocity_estimate/);
   assert.equal(csv.trimEnd().split("\r\n").length, 2);
 });

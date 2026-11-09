@@ -1,4 +1,4 @@
-// LiftIQ / openGym Firmware — Multi-Axis VBT, Bump Rejection & Phone Control
+// LiftIQ / openGym Firmware — Acceleration-Only Rep Tracking
 // Board:   Seeed Studio XIAO ESP32-S3
 // Library: DFRobot_BMI160 (github.com/DFRobot/DFRobot_BMI160)
 // Hardware: SDA = GPIO 5 (D4), SCL = GPIO 6 (D5), I2C Address = 0x68
@@ -18,9 +18,8 @@ const float BATTERY_DIVIDER_RATIO = 2.0f;
 
 DFRobot_BMI160 bmi160;
 
-// Sensor Conversion Constants (+/-2g accel, +/-2000 deg/s gyro)
+// Sensor Conversion Constants (+/-2g accelerometer)
 const float ACCEL_SENSITIVITY_LSB_PER_G = 16384.0f; 
-const float GYRO_SENSITIVITY_LSB_PER_DPS = 16.384f;
 const float G_TO_MS2 = 9.81f;
 
 // --- BLE UUID DEFINITIONS ---
@@ -43,15 +42,23 @@ const uint8_t CALIBRATION_FAILED = 3;
 
 // --- TUNABLE PHYSICS & THRESHOLD VARIABLES ---
 float baselineGravity = 9.81f; // Recalibrated at the start of each measurement
+float gravityX = 0.0f;
+float gravityY = 0.0f;
+float gravityZ = G_TO_MS2;
 
-// Dynamically updated thresholds (can be tuned via BLE from phone)
-float START_CONCENTRIC_THRESH      = 1.2f;  // Dynamic accel (m/s^2) to initiate rep
-float STOP_CONCENTRIC_THRESH       = 0.3f;  // Dynamic accel (m/s^2) to end concentric phase
-float REST_NOISE_THRESH            = 0.25f; // Stationary noise floor
-
-unsigned long MIN_CONCENTRIC_TIME_MS = 400;  // Must lift for at least 400ms
-unsigned long MIN_TOTAL_REP_TIME_MS  = 900;  // Full rep cycle must take >= 900ms
-float MIN_PEAK_VELOCITY              = 0.12f; // Must achieve at least 0.12 m/s
+const float START_CONCENTRIC_THRESH = 1.0f;
+const float MIN_ONSET_MAGNITUDE_DEVIATION = 0.05f;
+const float PHASE_REVERSAL_THRESH = 0.35f;
+const float REST_NOISE_THRESH = 0.45f;
+const float GRAVITY_TRACKING_TOLERANCE = 1.2f;
+const unsigned long MIN_CONCENTRIC_TIME_MS = 350;
+const unsigned long MIN_ECCENTRIC_TIME_MS = 350;
+const unsigned long MIN_TOTAL_REP_TIME_MS = 900;
+const unsigned long MIN_PHASE_SIGNAL_MS = 80;
+const unsigned long MIN_REST_DWELL_MS = 300;
+const float GRAVITY_FILTER_TIME_CONSTANT_S = 0.75f;
+const float PHASE_FILTER_ALPHA = 0.25f;
+const uint8_t MOTION_ONSET_SAMPLES = 4;
 
 // Motion State Machine
 enum LiftPhase { IDLE = 0, CONCENTRIC = 1, ECCENTRIC = 2 };
@@ -64,11 +71,18 @@ unsigned long concentricStartTime = 0;
 unsigned long totalRepStartTime   = 0;
 unsigned long phaseStartTime       = 0;
 
-float currentVelocity = 0.0f; // m/s
-float peakVelocity    = 0.0f; // m/s
-float peakAccel       = 0.0f; // m/s^2
-float velocitySum     = 0.0f;
-int concentricSamples = 0;
+float motionAxisX = 0.0f;
+float motionAxisY = 0.0f;
+float motionAxisZ = 0.0f;
+float onsetAccelSumX = 0.0f;
+float onsetAccelSumY = 0.0f;
+float onsetAccelSumZ = 0.0f;
+float filteredAxisAccel = 0.0f;
+uint8_t onsetSampleCount = 0;
+uint8_t phaseSignalSampleCount = 0;
+bool eccentricBrakingDetected = false;
+unsigned long restStartTime = 0;
+unsigned long phaseSignalStartTime = 0;
 
 // --- BLE CALLBACK HANDLERS ---
 class ServerCallbacks: public BLEServerCallbacks {
@@ -96,17 +110,6 @@ class ControlCallbacks: public BLECharacteristicCallbacks {
           calibrationRequested = true;
           Serial.println("\n[BLE CMD] Start New Set -> calibration requested.");
         } 
-        // Command 0x02: LIVE THRESHOLD TUNING FROM PHONE
-        else if (command == 0x02 && length >= 4) {
-          START_CONCENTRIC_THRESH = rxData[1] / 10.0f;  // Sent as int * 10
-          MIN_CONCENTRIC_TIME_MS  = rxData[2] * 10;     // Sent as int / 10
-          MIN_PEAK_VELOCITY       = rxData[3] / 100.0f; // Sent as int * 100
-
-          Serial.println("\n[BLE CMD] Thresholds Updated from App:");
-          Serial.print(" - Start Accel Thresh : "); Serial.print(START_CONCENTRIC_THRESH); Serial.println(" m/s^2");
-          Serial.print(" - Min Concentric Duration : "); Serial.print(MIN_CONCENTRIC_TIME_MS); Serial.println(" ms");
-          Serial.print(" - Min Peak Velocity       : "); Serial.print(MIN_PEAK_VELOCITY); Serial.println(" m/s");
-        }
       }
     }
 };
@@ -130,7 +133,7 @@ void notifyTelemetry(
   float az,
   float totalAccel,
   float dynamicAccel,
-  float velocity,
+  float,
   uint8_t status
 ) {
   if (!deviceConnected) {
@@ -142,7 +145,7 @@ void notifyTelemetry(
   }
   lastBleNotifyTime = now;
 
-  // Six scaled int16 values, phase, calibration status, rep count, battery mV.
+  // Five accelerometer fields, reserved zero, phase, calibration, reps, battery.
   // Little-endian packet, 18 bytes total (fits the default BLE MTU).
   int16_t values[6] = {
     scaledInt16(ax, 100.0f),
@@ -150,7 +153,7 @@ void notifyTelemetry(
     scaledInt16(az, 100.0f),
     scaledInt16(totalAccel, 100.0f),
     scaledInt16(dynamicAccel, 100.0f),
-    scaledInt16(velocity, 1000.0f)
+    0
   };
   uint8_t payload[18];
   for (uint8_t i = 0; i < 6; i++) {
@@ -179,7 +182,9 @@ bool calibrateBaselineGravity() {
   Serial.println("[CALIBRATION] STARTED - Keep device still");
   delay(500);
   
-  double sumAccel = 0.0;
+  double sumAccelX = 0.0;
+  double sumAccelY = 0.0;
+  double sumAccelZ = 0.0;
   int validSamples = 0;
 
   for (int i = 0; i < 100; i++) {
@@ -189,9 +194,9 @@ bool calibrateBaselineGravity() {
       float ax_ms2 = (raw[3] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
       float ay_ms2 = (raw[4] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
       float az_ms2 = (raw[5] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
-
-      float totalAccel = sqrt(ax_ms2 * ax_ms2 + ay_ms2 * ay_ms2 + az_ms2 * az_ms2);
-      sumAccel += totalAccel;
+      sumAccelX += ax_ms2;
+      sumAccelY += ay_ms2;
+      sumAccelZ += az_ms2;
       validSamples++;
     }
     delay(10);
@@ -203,7 +208,10 @@ bool calibrateBaselineGravity() {
     return false;
   }
 
-  baselineGravity = sumAccel / validSamples;
+  gravityX = sumAccelX / validSamples;
+  gravityY = sumAccelY / validSamples;
+  gravityZ = sumAccelZ / validSamples;
+  baselineGravity = sqrt(gravityX * gravityX + gravityY * gravityY + gravityZ * gravityZ);
   Serial.print("[CALIBRATION] COMPLETE - baseline gravity: ");
   Serial.print(baselineGravity, 3);
   Serial.println(" m/s^2");
@@ -214,14 +222,22 @@ bool calibrateBaselineGravity() {
 void resetRepTracking() {
   repCount = 0;
   currentPhase = IDLE;
-  currentVelocity = 0.0f;
-  peakVelocity = 0.0f;
-  peakAccel = 0.0f;
-  velocitySum = 0.0f;
-  concentricSamples = 0;
   concentricStartTime = 0;
   totalRepStartTime = 0;
   phaseStartTime = 0;
+  motionAxisX = 0.0f;
+  motionAxisY = 0.0f;
+  motionAxisZ = 0.0f;
+  eccentricBrakingDetected = false;
+  restStartTime = 0;
+  phaseSignalStartTime = 0;
+  phaseSignalSampleCount = 0;
+  onsetSampleCount = 0;
+  onsetAccelSumX = 0.0f;
+  onsetAccelSumY = 0.0f;
+  onsetAccelSumZ = 0.0f;
+  filteredAxisAccel = 0.0f;
+  lastSampleTime = millis();
 }
 
 void handleSerialCommand() {
@@ -293,7 +309,7 @@ void setup() {
 
   Serial.println("[OK] BLE Advertising started as 'GymIQ Sensor'.");
   Serial.println("=========================================================================");
-  Serial.println("Plotter Format -> ax(m/s2),ay(m/s2),az(m/s2),aTotal,aDynamic,Vel(m/s),Phase,RepCount");
+  Serial.println("Plotter Format -> ax(m/s2),ay(m/s2),az(m/s2),aTotal,aDynamic,SpeedEstimate(NA),Phase,RepCount");
   Serial.println("=========================================================================");
   lastSampleTime = millis();
 }
@@ -315,105 +331,167 @@ void loop() {
     return;
   }
 
-  // Extract raw gyro (deg/s) - Index 0, 1, 2
-  float gx = raw[0] / GYRO_SENSITIVITY_LSB_PER_DPS;
-  float gy = raw[1] / GYRO_SENSITIVITY_LSB_PER_DPS;
-  float gz = raw[2] / GYRO_SENSITIVITY_LSB_PER_DPS;
-
   // Extract raw accel (m/s^2) - Index 3, 4, 5
   float ax = (raw[3] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
   float ay = (raw[4] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
   float az = (raw[5] / ACCEL_SENSITIVITY_LSB_PER_G) * G_TO_MS2;
 
-  // Calculate 3D Total & Dynamic Acceleration Vector Magnitude
-  float totalAccel = sqrt(ax * ax + ay * ay + az * az);
-  float dynamicAccel = fabs(totalAccel - baselineGravity);
+  const float totalAccel = sqrt(ax * ax + ay * ay + az * az);
+  const float sampleDt = dt > 0.0f && dt < 0.05f ? dt : 0.01f;
 
-  if (dynamicAccel > peakAccel) {
-    peakAccel = dynamicAccel;
+  // With no gyro, track gravity only while the rep state machine is idle and
+  // acceleration magnitude is close to 1g. Freeze the reference during reps.
+  if (
+    currentPhase == IDLE &&
+    fabs(totalAccel - baselineGravity) < GRAVITY_TRACKING_TOLERANCE
+  ) {
+    const float alpha = sampleDt / (GRAVITY_FILTER_TIME_CONSTANT_S + sampleDt);
+    gravityX += (ax - gravityX) * alpha;
+    gravityY += (ay - gravityY) * alpha;
+    gravityZ += (az - gravityZ) * alpha;
+    const float gravityMagnitude = sqrt(gravityX * gravityX + gravityY * gravityY + gravityZ * gravityZ);
+    if (gravityMagnitude > 0.001f) {
+      const float scale = baselineGravity / gravityMagnitude;
+      gravityX *= scale;
+      gravityY *= scale;
+      gravityZ *= scale;
+    }
   }
 
-  // --- STATE MACHINE WITH BUMP & FALSE REP REJECTION ---
+  float linearAccelX = ax - gravityX;
+  float linearAccelY = ay - gravityY;
+  float linearAccelZ = az - gravityZ;
+  const float linearAccelMagnitude = sqrt(
+    linearAccelX * linearAccelX +
+    linearAccelY * linearAccelY +
+    linearAccelZ * linearAccelZ
+  );
+
+  // Magnitude deviation is orientation-invariant, so a sensor rotation at
+  // rest does not by itself look like a rep onset or active movement.
+  float dynamicAccel = fabs(totalAccel - baselineGravity);
+  float projectedAccel = 0.0f;
+  if (currentPhase != IDLE) {
+    projectedAccel =
+      linearAccelX * motionAxisX +
+      linearAccelY * motionAxisY +
+      linearAccelZ * motionAxisZ;
+    filteredAxisAccel += PHASE_FILTER_ALPHA * (projectedAccel - filteredAxisAccel);
+  }
+
+  // --- ACCELERATION-ONLY REP AND PHASE STATE MACHINE ---
   switch (currentPhase) {
     case IDLE:
-      if (dynamicAccel > START_CONCENTRIC_THRESH) {
-        currentPhase = CONCENTRIC;
-        concentricStartTime = currentTime;
-        totalRepStartTime = currentTime;
-        phaseStartTime = currentTime;
-        
-        currentVelocity = 0.0f;
-        peakVelocity = 0.0f;
-        peakAccel = dynamicAccel;
-        velocitySum = 0.0f;
-        concentricSamples = 0;
-        Serial.println("\n>>> Phase: [CONCENTRIC LIFT STARTED] <<<");
+      if (
+        linearAccelMagnitude > START_CONCENTRIC_THRESH &&
+        dynamicAccel > MIN_ONSET_MAGNITUDE_DEVIATION
+      ) {
+        onsetAccelSumX += linearAccelX;
+        onsetAccelSumY += linearAccelY;
+        onsetAccelSumZ += linearAccelZ;
+        onsetSampleCount++;
+        if (onsetSampleCount >= MOTION_ONSET_SAMPLES) {
+          const float onsetMagnitude = sqrt(
+            onsetAccelSumX * onsetAccelSumX +
+            onsetAccelSumY * onsetAccelSumY +
+            onsetAccelSumZ * onsetAccelSumZ
+          );
+          if (onsetMagnitude > 0.001f) {
+            motionAxisX = onsetAccelSumX / onsetMagnitude;
+            motionAxisY = onsetAccelSumY / onsetMagnitude;
+            motionAxisZ = onsetAccelSumZ / onsetMagnitude;
+            currentPhase = CONCENTRIC;
+            concentricStartTime = currentTime;
+            totalRepStartTime = currentTime;
+            phaseStartTime = currentTime;
+            filteredAxisAccel =
+              linearAccelX * motionAxisX +
+              linearAccelY * motionAxisY +
+              linearAccelZ * motionAxisZ;
+            phaseSignalSampleCount = 0;
+            eccentricBrakingDetected = false;
+            restStartTime = 0;
+            Serial.println("\n>>> Phase: [CONCENTRIC - ACCELERATION ONSET] <<<");
+          }
+          onsetSampleCount = 0;
+          onsetAccelSumX = 0.0f;
+          onsetAccelSumY = 0.0f;
+          onsetAccelSumZ = 0.0f;
+        }
+      } else {
+        onsetSampleCount = 0;
+        onsetAccelSumX = 0.0f;
+        onsetAccelSumY = 0.0f;
+        onsetAccelSumZ = 0.0f;
       }
       break;
 
     case CONCENTRIC:
-      // Discrete numerical integration for linear velocity
-      currentVelocity += dynamicAccel * dt;
-      velocitySum += currentVelocity;
-      concentricSamples++;
-
-      if (currentVelocity > peakVelocity) {
-        peakVelocity = currentVelocity;
-      }
-
-      // Check if concentric acceleration subsides
-      if (dynamicAccel < STOP_CONCENTRIC_THRESH) {
-        unsigned long concentricDuration = currentTime - concentricStartTime;
-
-        // BUMP FILTER 1: Check minimum concentric duration
-        if (concentricDuration >= MIN_CONCENTRIC_TIME_MS) {
+      if (
+        filteredAxisAccel < -PHASE_REVERSAL_THRESH &&
+        currentTime - concentricStartTime >= MIN_CONCENTRIC_TIME_MS
+      ) {
+        if (phaseSignalSampleCount == 0) phaseSignalStartTime = currentTime;
+        phaseSignalSampleCount++;
+        if (currentTime - phaseSignalStartTime >= MIN_PHASE_SIGNAL_MS) {
           currentPhase = ECCENTRIC;
           phaseStartTime = currentTime;
-          Serial.println("\n>>> Phase: [ECCENTRIC / LOWERING] <<<");
-        } else {
-          // Reject quick bump noise
-          Serial.print("\n[BUMP REJECTED] Concentric duration too short: ");
-          Serial.print(concentricDuration);
-          Serial.println(" ms");
-
-          currentVelocity = 0.0f;
-          peakAccel = 0.0f;
-          currentPhase = IDLE;
+          phaseSignalSampleCount = 0;
+          eccentricBrakingDetected = false;
+          restStartTime = 0;
+          phaseSignalStartTime = 0;
+          Serial.println("\n>>> Phase: [ECCENTRIC - ACCELERATION REVERSAL] <<<");
         }
+      } else {
+        phaseSignalSampleCount = 0;
+        phaseSignalStartTime = 0;
       }
       break;
 
     case ECCENTRIC:
-      // Motion returned to rest level
-      if (dynamicAccel < REST_NOISE_THRESH && (currentTime - phaseStartTime > 200)) {
-        unsigned long totalRepDuration = currentTime - totalRepStartTime;
-        float meanVelocity = (concentricSamples > 0) ? (velocitySum / concentricSamples) : 0.0f;
-
-        // BUMP FILTERS 2 & 3: Validate full rep duration and peak velocity
-        if (totalRepDuration >= MIN_TOTAL_REP_TIME_MS && peakVelocity >= MIN_PEAK_VELOCITY) {
-          repCount++;
-
-          // Print Formatted Log
-          Serial.println("\n==========================================");
-          Serial.print(" REP #"); Serial.print(repCount); Serial.println(" LOGGED!");
-          Serial.print(" - Duration      : "); Serial.print(totalRepDuration); Serial.println(" ms");
-          Serial.print(" - Mean Velocity : "); Serial.print(meanVelocity, 2); Serial.println(" m/s");
-          Serial.print(" - Peak Velocity : "); Serial.print(peakVelocity, 2); Serial.println(" m/s");
-          Serial.print(" - Peak Accel    : "); Serial.print(peakAccel, 2); Serial.println(" m/s^2");
-          Serial.println("==========================================\n");
-
-        } else {
-          Serial.print("\n[REP REJECTED] Total duration (");
-          Serial.print(totalRepDuration);
-          Serial.print("ms) or Peak Vel (");
-          Serial.print(peakVelocity, 2);
-          Serial.println("m/s) failed threshold.");
+      if (
+        filteredAxisAccel > PHASE_REVERSAL_THRESH &&
+        currentTime - phaseStartTime >= MIN_ECCENTRIC_TIME_MS
+      ) {
+        if (phaseSignalSampleCount == 0) phaseSignalStartTime = currentTime;
+        phaseSignalSampleCount++;
+        if (currentTime - phaseSignalStartTime >= MIN_PHASE_SIGNAL_MS) {
+          eccentricBrakingDetected = true;
         }
+      } else {
+        phaseSignalSampleCount = 0;
+        phaseSignalStartTime = 0;
+      }
 
-        // Zero Velocity Update (ZUPT)
-        currentVelocity = 0.0f;
-        peakAccel = 0.0f;
+      if (
+        eccentricBrakingDetected &&
+        dynamicAccel < REST_NOISE_THRESH
+      ) {
+        if (restStartTime == 0) restStartTime = currentTime;
+      } else {
+        restStartTime = 0;
+      }
+
+      if (
+        restStartTime != 0 &&
+        currentTime - restStartTime >= MIN_REST_DWELL_MS &&
+        currentTime - totalRepStartTime >= MIN_TOTAL_REP_TIME_MS
+      ) {
+        unsigned long totalRepDuration = currentTime - totalRepStartTime;
+        repCount++;
+        Serial.println("\n==========================================");
+        Serial.print(" REP #"); Serial.print(repCount); Serial.println(" LOGGED!");
+        Serial.print(" - Duration      : "); Serial.print(totalRepDuration); Serial.println(" ms");
+        Serial.println(" - Detection     : acceleration-only cycle");
+        Serial.println("==========================================\n");
+
         currentPhase = IDLE;
+        restStartTime = 0;
+        phaseSignalSampleCount = 0;
+        phaseSignalStartTime = 0;
+        motionAxisX = 0.0f;
+        motionAxisY = 0.0f;
+        motionAxisZ = 0.0f;
       }
       break;
   }
@@ -424,11 +502,11 @@ void loop() {
   Serial.print("az:"); Serial.print(az, 2); Serial.print(",");
   Serial.print("aTotal:"); Serial.print(totalAccel, 2); Serial.print(",");
   Serial.print("aDynamic:"); Serial.print(dynamicAccel, 2); Serial.print(",");
-  Serial.print("Velocity:"); Serial.print(currentVelocity, 2); Serial.print(",");
+  Serial.print("VelocityEstimate:"); Serial.print("NA"); Serial.print(",");
   Serial.print("Phase:"); Serial.print((int)currentPhase); Serial.print(",");
   Serial.print("RepCount:"); Serial.println(repCount);
 
-  notifyTelemetry(ax, ay, az, totalAccel, dynamicAccel, currentVelocity, CALIBRATION_IDLE);
+  notifyTelemetry(ax, ay, az, totalAccel, dynamicAccel, 0.0f, CALIBRATION_IDLE);
 
   delay(10); // ~100Hz loop rate
 }

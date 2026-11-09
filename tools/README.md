@@ -69,8 +69,9 @@ distinction between exercises).
 Live Bluetooth LE dashboard for telemetry from
 `firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`.
 It shows body-frame acceleration X/Y/Z, total and dynamic acceleration,
-the firmware velocity estimate, current phase, rep count, and measured
-notification rate.
+current phase, rep count, and measured notification rate. The firmware's
+speed-estimate field is reserved and set to zero; it should not be interpreted
+as a measurement.
 
 Install dependencies, flash `firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`, then
 run:
@@ -101,52 +102,51 @@ the dashboard says
 **Calibrating - keep sensor still**; recording begins only after the firmware
 confirms calibration. This replaces boot-time calibration and resets the
 firmware rep counter for each new session. The firmware's BLE "start new
-set" command requests the same calibration. The current calibration measures
-gravity magnitude only; it does not calibrate gyro bias or remove the
-gravity vector from each acceleration axis.
+set" command requests the same calibration. Calibration averages the
+accelerometer's gravity vector; the rep detector does not use gyroscope data.
 
 Calibration progress and missing calibration acknowledgments are shown in
 the connection status.
 
 The exported CSV contains one row per captured sample: elapsed session time,
-all acceleration and velocity values shown in the plots, phase name and ID,
-rep count, and measured sample rate. Time remains elapsed session time while
-paused, so the CSV preserves pauses as gaps; no samples are captured during
-those gaps.
+XYZ, total and dynamic acceleration, phase name and ID, rep count, and
+measured sample rate. Time remains elapsed session time while paused, so the
+CSV preserves pauses as gaps; no samples are captured during those gaps.
 
 BLE telemetry is sent at up to 50 Hz using 18-byte notifications: six
-little-endian signed 16-bit values (acceleration and magnitudes scaled by
-100, velocity by 1000), phase, calibration status, a 16-bit rep count, and
-battery voltage in millivolts. The dashboard also accepts legacy 16-byte
-notifications, which do not include battery voltage.
+little-endian signed 16-bit values (five acceleration values scaled by 100
+and a reserved zero speed slot), phase, calibration status, a 16-bit rep
+count, and battery voltage in millivolts. The dashboard also accepts legacy
+16-byte notifications, which do not include battery voltage.
 Acceleration is displayed in m/s^2, including gravity in the raw XYZ and
 total-acceleration values.
 
-**Treat velocity as a tuning signal, not a measurement.** The current
-firmware integrates `abs(|acceleration| - baseline gravity)`, which has no
-direction and can only increase the estimated speed during a lift phase.
-It cannot produce trustworthy displacement or velocity. See the tuning
-recommendations below before using those values for training feedback.
+The current firmware uses accelerometer data only for its rep counter and
+phase heuristic. It starts a candidate when gravity-compensated acceleration
+and total-magnitude deviation exceed their thresholds, detects sustained
+signed acceleration reversals along the onset axis, and requires a return to
+stable rest. Magnitude gating helps reject orientation-only changes. The phase
+labels describe acceleration events, not directly measured travel direction;
+a sensor cannot observe constant-speed motion from acceleration alone. The BLE
+speed slot is reserved and set to zero, and is omitted from the dashboard and
+its CSV.
 
 ## Rep tracking metrics and next tuning steps
 
-- First make the motion signal directional: estimate gravity/orientation,
-  subtract gravity, then project linear acceleration onto the machine's
-  constrained travel axis. Integrate with measured sample intervals and
-  correct velocity at confirmed stationary turnarounds; only then use
-  velocity or displacement for rep quality.
-- Log per-rep concentric/eccentric duration, pause duration, peak and mean
-  signed velocity, range of motion, and peak dynamic acceleration. These
-  make tempo and consistency measurable, but validate displacement against
-  known stack travel because inertial double-integration drifts.
+- Validate the acceleration-only phase heuristic against manually labeled
+  repetitions across machine types, mounting orientations, and tempos.
+- For actual speed or displacement, add a position sensor such as a cable
+  encoder; do not infer those values from the current IMU-only firmware.
+- Log per-rep concentric/eccentric duration, pause duration, and peak dynamic
+  acceleration to make tempo and consistency measurable. Use an external
+  position sensor if actual speed or range of motion is required.
 - Add confidence/rejection reasons and a stable-rest/noise estimate. Tune
   start/stop thresholds and minimum durations against slow reps, partial
   reps, pauses, and machine impacts; require a sustained condition rather
   than changing phase on a single threshold crossing.
-- Stream gyro axes or gyro magnitude as well. A sustained low-gyro and
-  low-acceleration-variance window is more reliable for confirming rest
-  than a single acceleration threshold crossing; gyro also helps catch
-  sensor rotation or a loose mount.
+- If phase labels need to correspond exactly to physical travel direction,
+  pair acceleration with a position sensor. Acceleration alone cannot resolve
+  direction during constant-speed segments.
 - Check sensor clipping and actual sample intervals. The Test sketch uses
   the BMI160 ±2g range; raise the range if representative machine motion
   approaches that limit. Keep the measured sample rate near the intended

@@ -80,11 +80,6 @@
               <span class="metric-label">RELATIVE ACCEL.</span>
               <strong id="dynamicAccel">—<small> m/s²</small></strong>
             </article>
-            <article class="card metric-card metric-velocity">
-              <span class="metric-label">SPEED ESTIMATE</span>
-              <strong id="velocity">—<small> m/s</small></strong>
-              <span class="metric-footnote">Firmware estimate</span>
-            </article>
           </div>
           <article class="card axes-card">
             <div class="axes-heading">
@@ -101,8 +96,8 @@
             <canvas id="telemetryChart" aria-label="Recent acceleration and speed estimates" role="img"></canvas>
             <div class="chart-legend">
               <span><i class="legend-line legend-accel"></i>Dynamic acceleration</span>
-              <span><i class="legend-line legend-speed"></i>Speed estimate</span>
             </div>
+            <p class="metric-footnote">Rep phases use acceleration-only heuristics; speed is not estimated.</p>
           </article>
         </div>
         </div>
