@@ -4,6 +4,7 @@ import {
   createSessionCsv,
   decodeTelemetry,
   DEVICE_NAME,
+  encodeRepThresholds,
   NOTIFY_UUID,
   SERVICE_UUID,
   WRITE_UUID,
@@ -50,6 +51,15 @@ test("returns calibration updates and rejects invalid packets", () => {
   assert.equal(decodeTelemetry(new DataView(new ArrayBuffer(17))), null);
   assert.equal(decodeTelemetry(packet({ phase: 3 })), null);
   assert.equal(decodeTelemetry(packet({ calibration: 4 })), null);
+});
+
+test("encodes rep thresholds as a little-endian BLE settings command", () => {
+  const command = encodeRepThresholds({ start: 1.2, reversal: 0.4, rest: 0.6 });
+  assert.deepEqual(Array.from(command), [0x02, 120, 0, 40, 0, 60, 0]);
+  assert.throws(
+    () => encodeRepThresholds({ start: 0, reversal: 0.4, rest: 0.6 }),
+    RangeError
+  );
 });
 
 test("writes every sample column and safely quotes CSV values", () => {

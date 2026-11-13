@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <header class="topbar">
+    <header class="masthead">
       <a class="brand" href="./" aria-label="LiftIQ home">
         <span class="brand-mark" aria-hidden="true">L</span>
         <span>Lift<span class="brand-accent">IQ</span></span>
@@ -23,10 +23,13 @@
     </header>
 
     <main>
-      <nav class="tabbar" aria-label="App pages">
-        <button class="tab-button is-selected" id="workoutTab" type="button" aria-current="page">Workout</button>
-        <button class="tab-button" id="sensorTab" type="button">Sensor &amp; settings</button>
-        <button class="tab-button" id="historyTab" type="button">History</button>
+      <nav class="section-nav" aria-label="App sections">
+        <button class="tab-button is-selected" id="workoutTab" type="button" aria-current="page">
+          <span class="nav-index">01</span> Workout
+        </button>
+        <button class="tab-button" id="sensorTab" type="button">
+          <span class="nav-index">02</span> Sensor
+        </button>
       </nav>
 
       <div class="notice" id="browserNotice" hidden></div>
@@ -35,182 +38,202 @@
       <section id="workoutPage" class="app-page">
         <div class="page-heading">
           <div>
-            <p class="eyebrow">TRAINING SESSION</p>
-            <h1>Your next set,<br class="mobile-break"> measured.</h1>
-            <p class="subheading">Live movement data, saved right on this device.</p>
+            <p class="eyebrow">TRAINING LOG <span>—</span> LIVE SESSION</p>
+            <h1>Make every rep<br class="desktop-break"> count.</h1>
           </div>
+          <p class="subheading">A clear view of your movement, from first rep to final set.</p>
         </div>
 
-        <div class="session-layout" aria-label="Current set">
-        <div class="card rep-card">
-          <div class="card-topline">
+        <aside class="setup-prompt" id="setupPrompt" aria-labelledby="setupPromptTitle">
+          <span class="setup-symbol" aria-hidden="true">↗</span>
+          <div class="setup-copy">
+            <strong id="setupPromptTitle">Start with your sensor</strong>
+            <span>Connect your LiftIQ sensor to begin a set and see live data.</span>
+          </div>
+          <button class="setup-link" id="setupSensorButton" type="button">Set up <span aria-hidden="true">→</span></button>
+        </aside>
+
+        <section class="workout-console" aria-label="Current workout set">
+          <div class="set-topline">
             <span class="eyebrow">CURRENT SET</span>
             <span class="phase-badge" id="phaseBadge">IDLE</span>
           </div>
-          <div class="rep-value" id="repCount">0</div>
-          <div class="rep-caption">reps completed</div>
-          <div class="rep-divider"></div>
-          <div class="set-meta">
-            <label class="exercise-field">
-              <span class="eyebrow">EXERCISE / SET NAME</span>
-              <input id="exerciseInput" type="text" maxlength="60" placeholder="e.g. Lat pulldown" autocomplete="off">
-            </label>
-            <div class="elapsed-field">
-              <span class="eyebrow">TIME</span>
-              <strong id="elapsedTime">00:00</strong>
+          <div class="live-stage">
+            <div class="rep-readout">
+              <span class="eyebrow">REPS COMPLETED</span>
+              <div class="rep-value" id="repCount" aria-live="polite" aria-atomic="true">0</div>
+              <span class="readout-note">Counted by your sensor</span>
+            </div>
+            <div class="set-details">
+              <label class="exercise-field" for="exerciseInput">
+                <span class="eyebrow">EXERCISE</span>
+                <input id="exerciseInput" type="text" maxlength="60" placeholder="Name this set" autocomplete="off">
+              </label>
+              <div class="elapsed-field">
+                <span class="eyebrow">ELAPSED</span>
+                <strong id="elapsedTime">00:00</strong>
+              </div>
+              <p class="helper-text" id="sessionMessage" role="status" aria-live="polite">Connect to your LiftIQ sensor to begin.</p>
             </div>
           </div>
-          <div class="session-actions">
+          <div class="session-actions" aria-label="Set controls">
             <button class="button button-primary" id="startButton" type="button" disabled>
               <span aria-hidden="true">▶</span> Start set
             </button>
             <button class="button button-secondary" id="pauseButton" type="button" disabled>Pause</button>
-            <button class="button button-stop" id="stopButton" type="button" disabled>Stop</button>
+            <button class="button button-stop" id="stopButton" type="button" disabled>Stop set</button>
           </div>
-          <p class="helper-text" id="sessionMessage">Connect to your LiftIQ sensor to begin.</p>
-        </div>
+        </section>
 
-        <div class="telemetry-column">
-          <div class="metric-grid">
-            <article class="card metric-card">
-              <span class="metric-label">TOTAL ACCEL.</span>
-              <strong id="totalAccel">—<small> m/s²</small></strong>
-            </article>
-            <article class="card metric-card">
-              <span class="metric-label">RELATIVE ACCEL.</span>
-              <strong id="dynamicAccel">—<small> m/s²</small></strong>
-            </article>
+        <section class="signal-section" aria-labelledby="signalTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">LIVE SENSOR FEED</p>
+              <h2 id="signalTitle">Movement signal</h2>
+            </div>
+            <span class="axes-unit">Acceleration · m/s²</span>
           </div>
-          <article class="card axes-card">
-            <div class="axes-heading">
-              <div>
-                <span class="metric-label">ACCELERATION AXES</span>
-                <span class="axes-unit">m/s²</span>
-              </div>
-              <div class="axis-values">
-                <span><i class="axis-dot axis-x"></i>X <b id="axisX">—</b></span>
-                <span><i class="axis-dot axis-y"></i>Y <b id="axisY">—</b></span>
-                <span><i class="axis-dot axis-z"></i>Z <b id="axisZ">—</b></span>
-              </div>
+          <div class="signal-reading">
+            <div class="signal-stat">
+              <span class="metric-label">TOTAL</span>
+              <strong id="totalAccel">—<small> m/s²</small></strong>
             </div>
-            <canvas id="telemetryChart" aria-label="Recent acceleration and speed estimates" role="img"></canvas>
-            <div class="chart-legend">
-              <span><i class="legend-line legend-accel"></i>Dynamic acceleration</span>
+            <div class="signal-stat">
+              <span class="metric-label">DYNAMIC</span>
+              <strong id="dynamicAccel">—<small> m/s²</small></strong>
             </div>
-            <p class="metric-footnote">Rep phases use acceleration-only heuristics; speed is not estimated.</p>
-          </article>
-        </div>
-        </div>
+            <div class="axis-values" aria-label="Acceleration by axis">
+              <span><i class="axis-dot axis-x"></i>X <b id="axisX">—</b></span>
+              <span><i class="axis-dot axis-y"></i>Y <b id="axisY">—</b></span>
+              <span><i class="axis-dot axis-z"></i>Z <b id="axisZ">—</b></span>
+            </div>
+          </div>
+          <canvas id="telemetryChart" aria-label="Recent dynamic acceleration chart" role="img"></canvas>
+          <div class="chart-caption">
+            <span><i class="legend-line legend-accel"></i>Dynamic acceleration</span>
+            <span>Recent signal · phase detection follows acceleration events</span>
+          </div>
+        </section>
+
+        <details id="historyPage" class="history-section">
+          <summary class="history-summary">
+            <span>
+              <span class="eyebrow">ON THIS DEVICE</span>
+              <span class="history-title">Set history</span>
+            </span>
+            <span class="history-count" id="historyCount">0 sets saved</span>
+          </summary>
+          <div class="history-list" id="historyList">
+            <div class="empty-history">
+              <span class="empty-icon" aria-hidden="true">↗</span>
+              <strong>No sets yet</strong>
+              <span>Your saved workouts and CSV files will show up here.</span>
+            </div>
+          </div>
+          <p class="storage-note" id="storageNote">Your set data and CSV exports are stored in this app on this device.</p>
+        </details>
       </section>
 
       <section id="sensorPage" class="app-page" hidden aria-labelledby="sensorTitle">
-        <div class="page-heading">
+        <div class="page-heading sensor-heading">
           <div>
-            <p class="eyebrow">DEVICE MANAGEMENT</p>
-            <h1 id="sensorTitle">Sensor &amp; settings</h1>
-            <p class="subheading">Connect, calibrate, and check device health.</p>
+            <p class="eyebrow">DEVICE <span>—</span> SETUP</p>
+            <h1 id="sensorTitle">Your sensor,<br class="desktop-break"> dialled in.</h1>
           </div>
+          <p class="subheading">Pair once, check its signal, and tune detection for your training.</p>
         </div>
-        <div class="sensor-page-grid">
-          <article class="card sensor-card">
-            <div class="card-topline">
-              <div>
-                <p class="eyebrow">LIFTIQ SENSOR</p>
-                <h2 class="sensor-card-title" id="sensorName">Not connected</h2>
-              </div>
-              <span class="device-icon" aria-hidden="true">⌁</span>
-            </div>
-            <p class="sensor-copy">Connect to the nearby GymIQ Sensor. Keep Bluetooth enabled and close other apps using the sensor.</p>
-            <div class="sensor-actions">
-              <button class="button button-primary" id="connectButton" type="button">
-                <span class="connection-dot" aria-hidden="true"></span>
-                <span id="connectLabel">Connect sensor</span>
-              </button>
-              <button class="button button-secondary" id="calibrateButton" type="button" disabled>Calibrate sensor</button>
-            </div>
-          </article>
-          <article class="card device-status-card">
-            <p class="eyebrow">DEVICE STATUS</p>
-            <div class="device-status-row">
-              <span>Bluetooth</span>
-              <strong id="bluetoothState">Disconnected</strong>
-            </div>
-            <div class="device-status-row">
-              <span>Sensor stream</span>
-              <strong id="streamState">Waiting for connection</strong>
-            </div>
-            <div class="device-status-row">
-              <span>Calibration</span>
-              <strong id="calibrationState">Not calibrated this session</strong>
-            </div>
-            <div class="battery-panel">
-              <div class="battery-icon" aria-hidden="true"><span id="batteryLevelFill"></span></div>
-              <div class="battery-info">
-                <span class="eyebrow">LIPO BATTERY · ESTIMATE</span>
-                <strong id="batteryValue">—%</strong>
-                <small id="batteryVoltage">Waiting for sensor data</small>
-              </div>
-            </div>
-            <p class="sensor-footnote">Battery percentage is estimated from voltage at D9. Use the specified divider; it is not a fuel-gauge measurement.</p>
-          </article>
-          <article class="card settings-card">
-            <div>
-              <p class="eyebrow">WORKOUT SETTINGS</p>
-              <h2 class="sensor-card-title">Start countdown</h2>
-              <p class="sensor-copy">A short ready-set countdown runs before the sensor calibrates.</p>
-            </div>
-            <label class="countdown-setting" for="countdownSetting">
-              <span>Seconds before calibration</span>
-              <select id="countdownSetting">
-                <option value="0">Off</option>
-                <option value="1">1 second</option>
-                <option value="2">2 seconds</option>
-                <option value="3" selected>3 seconds</option>
-                <option value="4">4 seconds</option>
-                <option value="5">5 seconds</option>
-                <option value="6">6 seconds</option>
-                <option value="7">7 seconds</option>
-                <option value="8">8 seconds</option>
-                <option value="9">9 seconds</option>
-                <option value="10">10 seconds</option>
-              </select>
-            </label>
-            <p class="sensor-footnote">Your choice is saved on this device. The default is 3 seconds.</p>
-          </article>
-        </div>
-      </section>
 
-      <section id="historyPage" class="app-page history-section" hidden aria-labelledby="historyTitle">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">ON THIS DEVICE</p>
-            <h2 id="historyTitle">Set history</h2>
+        <section class="sensor-connection" aria-labelledby="connectionTitle">
+          <div class="connection-copy">
+            <p class="eyebrow">LIFTIQ SENSOR</p>
+            <h2 id="connectionTitle"><span id="sensorName">Not connected</span></h2>
+            <p>Keep Bluetooth on and close other apps using the nearby GymIQ Sensor.</p>
           </div>
-          <span class="history-count" id="historyCount">0 sets saved</span>
-        </div>
-        <div class="history-list" id="historyList">
-          <div class="empty-history">
-            <span class="empty-icon" aria-hidden="true">↗</span>
-            <strong>No sets yet</strong>
-            <span>Your saved workouts and CSV files will show up here.</span>
+          <div class="sensor-actions">
+            <button class="button button-primary" id="connectButton" type="button">
+              <span class="connection-dot" aria-hidden="true"></span>
+              <span id="connectLabel">Connect sensor</span>
+            </button>
+            <button class="button button-secondary" id="calibrateButton" type="button" disabled>Calibrate sensor</button>
           </div>
-        </div>
-        <p class="storage-note" id="storageNote">Your set data and CSV exports are stored in this app on this device.</p>
+        </section>
+
+        <section class="device-overview" aria-labelledby="deviceStatusTitle">
+          <div class="section-heading compact-heading">
+            <div>
+              <p class="eyebrow">AT A GLANCE</p>
+              <h2 id="deviceStatusTitle">Device status</h2>
+            </div>
+          </div>
+          <dl class="device-status-list">
+            <div class="device-status-row">
+              <dt>Bluetooth</dt>
+              <dd id="bluetoothState">Disconnected</dd>
+            </div>
+            <div class="device-status-row">
+              <dt>Sensor stream</dt>
+              <dd id="streamState">Waiting for connection</dd>
+            </div>
+            <div class="device-status-row">
+              <dt>Calibration</dt>
+              <dd id="calibrationState">Not calibrated this session</dd>
+            </div>
+          </dl>
+          <div class="battery-panel">
+            <div class="battery-icon" aria-hidden="true"><span id="batteryLevelFill"></span></div>
+            <div class="battery-info">
+              <span class="eyebrow">BATTERY ESTIMATE</span>
+              <strong id="batteryValue">—%</strong>
+              <small id="batteryVoltage">Waiting for sensor data</small>
+            </div>
+            <p class="sensor-footnote">Voltage estimate from the optional D1/GPIO3 divider; this is not a fuel-gauge measurement.</p>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="settingsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">PERSONALISE DETECTION</p>
+              <h2 id="settingsTitle">Sensor settings</h2>
+            </div>
+            <p class="settings-intro">Settings stay on this device and sync when connected.</p>
+          </div>
+          <form id="sensorSettingsForm" class="settings-form">
+            <label class="setting-field name-field" for="customSensorName">
+              <span>Custom display name</span>
+              <input id="customSensorName" type="text" maxlength="32" placeholder="e.g. Leg press sensor" autocomplete="off">
+            </label>
+            <label class="setting-field" for="startThreshold">
+              <span>Movement start <small>m/s²</small></span>
+              <input id="startThreshold" type="number" min="0.1" max="5" step="0.1" required>
+            </label>
+            <label class="setting-field" for="reversalThreshold">
+              <span>Phase reversal <small>m/s²</small></span>
+              <input id="reversalThreshold" type="number" min="0.1" max="3" step="0.05" required>
+            </label>
+            <label class="setting-field" for="restThreshold">
+              <span>Return to rest <small>m/s²</small></span>
+              <input id="restThreshold" type="number" min="0.1" max="3" step="0.05" required>
+            </label>
+            <button class="button button-primary" id="saveSensorSettings" type="submit">Save settings</button>
+          </form>
+          <p class="settings-message" id="settingsMessage" role="status" aria-live="polite">Settings are stored on this device and sent when connected.</p>
+        </section>
       </section>
     </main>
 
     <div class="modal-backdrop" id="countdownDialog" hidden>
-      <section class="modal-card countdown-card" role="dialog" aria-modal="true" aria-labelledby="countdownTitle">
-        <p class="eyebrow">GET READY</p>
-        <h2 id="countdownTitle">Set starts in</h2>
-        <div class="countdown-number" id="countdownNumber" aria-live="assertive">3</div>
-        <p class="modal-copy">Get into position. Keep still when calibration begins.</p>
+      <section class="modal-card countdown-card" role="dialog" aria-modal="true" aria-labelledby="countdownTitle" tabindex="-1">
+        <p class="eyebrow">SENSOR CALIBRATION</p>
+        <h2 id="countdownTitle">Keep still</h2>
+        <div class="countdown-number" id="countdownNumber" aria-live="assertive">5</div>
+        <p class="modal-copy" id="countdownMessage">Hold the sensor still while it calibrates.</p>
         <button class="button button-secondary modal-cancel" id="cancelCountdownButton" type="button">Cancel</button>
       </section>
     </div>
 
     <div class="modal-backdrop" id="repReviewDialog" hidden>
-      <section class="modal-card rep-review-card" role="dialog" aria-modal="true" aria-labelledby="repReviewTitle">
+      <section class="modal-card rep-review-card" role="dialog" aria-modal="true" aria-labelledby="repReviewTitle" tabindex="-1">
         <div class="rep-review-question" id="repReviewQuestion">
           <p class="eyebrow">SET COMPLETE</p>
           <h2 id="repReviewTitle">Did you complete <span id="detectedRepCount">0</span> reps?</h2>
@@ -241,7 +264,7 @@
     </div>
 
     <footer>
-      <span>LiftIQ prototype</span>
+      <span>LiftIQ training log</span>
       <span>BLE · Saved privately on this device</span>
     </footer>
 

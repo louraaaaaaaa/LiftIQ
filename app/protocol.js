@@ -6,6 +6,32 @@ export const PHASE_NAMES = ["IDLE", "CONCENTRIC", "ECCENTRIC"];
 
 const PACKET_LENGTH = 18;
 const CALIBRATION_STATUS = new Map([[0, null], [1, "started"], [2, "complete"], [3, "failed"]]);
+export const DEFAULT_REP_THRESHOLDS = {
+  start: 1.0,
+  reversal: 0.35,
+  rest: 0.45,
+};
+export const REP_THRESHOLD_LIMITS = {
+  start: { min: 0.1, max: 5.0 },
+  reversal: { min: 0.1, max: 3.0 },
+  rest: { min: 0.1, max: 3.0 },
+};
+
+export function encodeRepThresholds(thresholds) {
+  const values = ["start", "reversal", "rest"].map((key) => {
+    const value = Number(thresholds[key]);
+    const { min, max } = REP_THRESHOLD_LIMITS[key];
+    if (!Number.isFinite(value) || value < min || value > max) {
+      throw new RangeError(`${key} threshold must be between ${min} and ${max} m/s².`);
+    }
+    return Math.round(value * 100);
+  });
+  const command = new Uint8Array(7);
+  const view = new DataView(command.buffer);
+  command[0] = 0x02;
+  values.forEach((value, index) => view.setUint16(1 + index * 2, value, true));
+  return command;
+}
 
 export function decodeTelemetry(dataView) {
   if (

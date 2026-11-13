@@ -1,8 +1,11 @@
 # LiftIQ phone app
 
-This is a dependency-free, installable web app for the current BLE firmware.
-It uses Web Bluetooth for sensor access and IndexedDB for on-device session
-history and saved CSV contents.
+This is a dependency-free, installable strength-training log for the current
+BLE firmware. Its mobile-first workout view puts the rep count and set controls
+first, with the live acceleration trace and local set history close at hand.
+Sensor pairing, status, battery, naming, and detection settings live together
+in a separate setup section. Sessions and CSV files stay in IndexedDB on this
+device.
 
 ## Browser and hosting requirements
 
@@ -20,7 +23,7 @@ For PC testing, open a terminal in this `app` directory and run:
 npm.cmd start
 ```
 
-This uses Node.js and serves only on the PC at <http://localhost:8000>. Keep
+This uses Node.js and serves only on the PC at [http://localhost:8000](http://localhost:8000). Keep
 the terminal running, then open the address in Chrome or Edge. Click
 **Connect sensor**, choose **GymIQ Sensor**, then test with the real device
 nearby. Turn on the PC's Bluetooth and close other apps already connected to
@@ -40,22 +43,26 @@ sensor to be nearby and connected.
 
 ## Using the app
 
-1. Open **Sensor & settings**, power on the sensor, and tap **Connect sensor**.
+1. Open **Sensor**, power on the sensor, and tap **Connect sensor**.
 2. Select **GymIQ Sensor** in the browser's Bluetooth device picker. No UUID
    input is needed. If Android asks for permission or pairing, approve it.
 3. Check Bluetooth, telemetry, calibration, and the estimated battery status
-   on the sensor page. Set the start countdown there (3 seconds by default).
-   Battery monitoring requires the D9 divider wiring documented in
-   [`hardware/BOM.md`](../hardware/BOM.md).
+   on the sensor page. Optionally enter a custom display name and adjust the
+   movement-start, phase-reversal, and return-to-rest thresholds. Tap **Save
+   settings** to store them on this device and send them to a connected sensor.
+   The name is an app-only label; the BLE device continues advertising as
+   **GymIQ Sensor**. On the XIAO ESP32C3, battery monitoring requires the
+   optional divider to be wired to D1/GPIO3 (ADC1), as documented in
+   [`hardware/BOM.md`](../hardware/BOM.md). Do not use D9 for the ADC input.
 4. Optionally enter an exercise name on **Workout**, then tap **Start set**.
-   The app runs the countdown and calibrates the sensor before recording.
-   Keep it still during calibration.
+   A fixed five-second countdown runs while the sensor calibrates. Keep it
+   still until calibration finishes and recording begins.
 5. Pause/resume or stop the set. Pausing suspends sample logging and plots,
    while the rep count continues to follow the sensor. After stopping, confirm
    the detected reps or enter your actual count; the confirmed count is saved
    with the samples.
-6. Tap **History**, then **↓ CSV** to download a copy of the saved CSV, or **Delete** to remove
-   both the session and its CSV from this device.
+6. Expand **Set history** below the workout to download a CSV or delete a saved
+   set and its CSV from this device.
 
 The CSV columns include elapsed time, XYZ acceleration, total and dynamic
 acceleration, phase name and ID, rep count, and the user-confirmed actual rep
@@ -63,6 +70,14 @@ count. Sample-rate and speed estimates are not included. The current firmware
 uses acceleration-only phase and rep heuristics; phase labels indicate motion
 events rather than a direct measurement of movement direction.
 Paused samples are omitted, while elapsed time retains the pause gap.
+
+The five-second calibration duration is fixed in the app and firmware. Rep
+thresholds are stored in the browser's local app settings and resent whenever
+that browser connects; the firmware uses built-in defaults when used without
+the app. Adjust thresholds on the sensor page if the rep counter is too
+sensitive or misses movements. The adjustable movement-start threshold ranges
+from 0.1–5.0 m/s²; phase-reversal and return-to-rest thresholds range from
+0.1–3.0 m/s². Defaults are 1.0, 0.35, and 0.45 m/s², respectively.
 
 Set history and CSV data are local to the browser on this device. The app asks
 the browser to protect its storage from automatic cleanup, but this is not a

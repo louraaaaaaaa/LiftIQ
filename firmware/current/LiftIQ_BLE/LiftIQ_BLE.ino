@@ -1,7 +1,8 @@
 // LiftIQ / openGym Firmware — Acceleration-Only Rep Tracking
-// Board:   Seeed Studio XIAO ESP32-S3
+// Board:   Seeed Studio XIAO ESP32C3 (Arduino board: XIAO_ESP32C3)
 // Library: DFRobot_BMI160 (github.com/DFRobot/DFRobot_BMI160)
-// Hardware: SDA = GPIO 5 (D4), SCL = GPIO 6 (D5), I2C Address = 0x68
+// Hardware: SDA = GPIO 6 (D4), SCL = GPIO 7 (D5), battery ADC = GPIO 3 (D1)
+// BMI160 I2C address = 0x68
 
 #include <Wire.h>
 #include <DFRobot_BMI160.h>
@@ -10,9 +11,9 @@
 #include <BLE2902.h>
 
 // --- HARDWARE CONFIGURATION ---
-const int PIN_SDA = 5;
-const int PIN_SCL = 6;
-const int PIN_BATTERY = D9;
+const int PIN_SDA = 6;
+const int PIN_SCL = 7;
+const int PIN_BATTERY = 3;  // XIAO ESP32C3 D1 / GPIO3 / ADC1_CH3
 const int8_t BMI160_I2C = 0x68;
 const float BATTERY_DIVIDER_RATIO = 2.0f;
 
@@ -46,10 +47,10 @@ float gravityX = 0.0f;
 float gravityY = 0.0f;
 float gravityZ = G_TO_MS2;
 
-const float START_CONCENTRIC_THRESH = 1.0f;
+float START_CONCENTRIC_THRESH = 1.0f;
 const float MIN_ONSET_MAGNITUDE_DEVIATION = 0.05f;
-const float PHASE_REVERSAL_THRESH = 0.35f;
-const float REST_NOISE_THRESH = 0.45f;
+float PHASE_REVERSAL_THRESH = 0.35f;
+float REST_NOISE_THRESH = 0.45f;
 const float GRAVITY_TRACKING_TOLERANCE = 1.2f;
 const unsigned long MIN_CONCENTRIC_TIME_MS = 350;
 const unsigned long MIN_ECCENTRIC_TIME_MS = 350;
@@ -109,6 +110,26 @@ class ControlCallbacks: public BLECharacteristicCallbacks {
         if (command == 0x01) {
           calibrationRequested = true;
           Serial.println("\n[BLE CMD] Start New Set -> calibration requested.");
+        } else if (command == 0x02 && length == 7) {
+          const uint16_t startEncoded = rxData[1] | (uint16_t(rxData[2]) << 8);
+          const uint16_t reversalEncoded = rxData[3] | (uint16_t(rxData[4]) << 8);
+          const uint16_t restEncoded = rxData[5] | (uint16_t(rxData[6]) << 8);
+          const float startThreshold = startEncoded / 100.0f;
+          const float reversalThreshold = reversalEncoded / 100.0f;
+          const float restThreshold = restEncoded / 100.0f;
+
+          if (
+            startThreshold >= 0.1f && startThreshold <= 5.0f &&
+            reversalThreshold >= 0.1f && reversalThreshold <= 3.0f &&
+            restThreshold >= 0.1f && restThreshold <= 3.0f
+          ) {
+            START_CONCENTRIC_THRESH = startThreshold;
+            PHASE_REVERSAL_THRESH = reversalThreshold;
+            REST_NOISE_THRESH = restThreshold;
+            Serial.println("\n[BLE CMD] Rep thresholds updated.");
+          } else {
+            Serial.println("\n[BLE CMD] Invalid rep thresholds ignored.");
+          }
         } 
       }
     }
@@ -187,7 +208,7 @@ bool calibrateBaselineGravity() {
   double sumAccelZ = 0.0;
   int validSamples = 0;
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 450; i++) {
     int16_t raw[6] = {0};
     if (bmi160.getAccelGyroData(raw) == BMI160_OK) {
       // DFRobot packing order: raw[3..5] is Accel XYZ

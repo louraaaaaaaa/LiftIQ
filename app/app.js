@@ -2,6 +2,8 @@ import {
   createSessionCsv,
   decodeTelemetry,
   PHASE_NAMES,
+  DEFAULT_REP_THRESHOLDS,
+  encodeRepThresholds,
   DEVICE_NAME,
   SERVICE_UUID,
   NOTIFY_UUID,
@@ -12,8 +14,9 @@ const DB_NAME = "liftiq-local";
 const DB_VERSION = 1;
 const STORE_NAME = "sessions";
 const CALIBRATION_TIMEOUT_MS = 15000;
+const CALIBRATION_COUNTDOWN_SECONDS = 5;
 const MAX_CHART_POINTS = 240;
-const COUNTDOWN_SETTING_KEY = "liftiq-countdown-seconds";
+const SENSOR_SETTINGS_KEY = "liftiq-sensor-settings";
 const chartValues = [];
 
 const elements = Object.fromEntries(
@@ -23,10 +26,13 @@ const elements = Object.fromEntries(
     "axisX", "axisY", "axisZ", "telemetryChart",
     "exerciseInput", "elapsedTime", "startButton", "pauseButton", "stopButton",
     "sessionMessage", "historyCount", "historyList", "storageNote",
-    "workoutTab", "sensorTab", "historyTab", "workoutPage", "sensorPage",
-    "historyPage", "sensorName", "bluetoothState", "streamState",
+    "workoutTab", "sensorTab", "setupSensorButton", "workoutPage", "sensorPage",
+    "sensorName", "customSensorName", "sensorSettingsForm",
+    "startThreshold", "reversalThreshold", "restThreshold", "settingsMessage",
+    "bluetoothState", "streamState",
     "calibrationState", "batteryLevelFill", "batteryValue", "batteryVoltage",
-    "calibrateButton", "countdownSetting", "countdownDialog", "countdownNumber",
+    "calibrateButton", "saveSensorSettings", "countdownDialog", "countdownNumber",
+    "countdownMessage",
     "cancelCountdownButton", "repReviewDialog", "repReviewQuestion",
     "detectedRepCount", "confirmRepsButton", "correctRepsButton",
     "repCorrectionForm", "actualRepCount", "backToRepReviewButton",
@@ -52,13 +58,19 @@ let elapsedTimer;
 let lastTelemetryAt = null;
 let batteryMillivolts = null;
 let reviewSaveMessage = "Your set is saved on this device.";
+let sensorSettings = { customName: "", thresholds: { ...DEFAULT_REP_THRESHOLDS } };
 
 function setStatus(message, connected = Boolean(device?.gatt?.connected)) {
   elements.statusText.textContent = message;
   elements.sensorStatus.classList.toggle("is-connected", connected);
-  elements.sensorName.textContent = connected ? device?.name || "GymIQ Sensor" : "Not connected";
+  document.body.classList.toggle("sensor-connected", connected);
+  elements.sensorName.textContent = connected ? sensorDisplayName() : "Not connected";
   elements.bluetoothState.textContent = connected ? "Connected" : "Disconnected";
   updateDeviceStatus();
+}
+
+function sensorDisplayName() {
+  return sensorSettings.customName || device?.name || "GymIQ Sensor";
 }
 
 function batteryPercentage(millivolts) {
@@ -84,7 +96,7 @@ function updateDeviceStatus() {
   elements.streamState.textContent = !connected
     ? "Waiting for connection"
     : streamFresh ? "Receiving data" : "No recent data";
-  elements.calibrationState.textContent = captureState === "calibrating" || captureState === "sensor-calibrating"
+  elements.calibrationState.textContent = captureState === "calibrating" || captureState === "sensor-calibrating" || captureState === "canceling-calibration"
     ? "Calibrating…"
     : captureState === "recording" || captureState === "paused"
       ? "Calibrated for this set"
@@ -117,6 +129,69 @@ function setMessage(message) {
   elements.sessionMessage.textContent = message;
 }
 
+function loadSensorSettings() {
+  const saved = localStorage.getItem(SENSOR_SETTINGS_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      const thresholds = { ...DEFAULT_REP_THRESHOLDS, ...parsed.thresholds };
+      encodeRepThresholds(thresholds);
+      sensorSettings = {
+        customName: typeof parsed.customName === "string" ? parsed.customName.slice(0, 32) : "",
+        thresholds,
+      };
+    } catch (error) {
+      showError(`Saved sensor settings could not be loaded: ${error.message}`);
+    }
+  }
+  elements.customSensorName.value = sensorSettings.customName;
+  elements.startThreshold.value = sensorSettings.thresholds.start;
+  elements.reversalThreshold.value = sensorSettings.thresholds.reversal;
+  elements.restThreshold.value = sensorSettings.thresholds.rest;
+}
+
+function readThresholdInputs() {
+  return {
+    start: elements.startThreshold.valueAsNumber,
+    reversal: elements.reversalThreshold.valueAsNumber,
+    rest: elements.restThreshold.valueAsNumber,
+  };
+}
+
+async function applyRepThresholds() {
+  if (!writeCharacteristic || !device?.gatt?.connected) {
+    elements.settingsMessage.textContent = "Saved on this device. Thresholds will sync when connected.";
+    return;
+  }
+  await writeCharacteristic.writeValue(encodeRepThresholds(sensorSettings.thresholds));
+  elements.settingsMessage.textContent = `Thresholds sent to ${sensorDisplayName()}.`;
+}
+
+async function saveSensorSettings(event) {
+  event.preventDefault();
+  const thresholds = readThresholdInputs();
+  try {
+    const command = encodeRepThresholds(thresholds);
+    sensorSettings = {
+      customName: elements.customSensorName.value.trim(),
+      thresholds,
+    };
+    localStorage.setItem(SENSOR_SETTINGS_KEY, JSON.stringify(sensorSettings));
+    if (writeCharacteristic && device?.gatt?.connected) {
+      await writeCharacteristic.writeValue(command);
+      elements.settingsMessage.textContent = `Settings saved and sent to ${sensorDisplayName()}.`;
+    } else {
+      elements.settingsMessage.textContent = "Settings saved on this device and will sync when connected.";
+    }
+    if (device?.gatt?.connected) {
+      elements.sensorName.textContent = sensorDisplayName();
+      elements.statusText.textContent = `${sensorDisplayName()} connected`;
+    }
+  } catch (error) {
+    showError(`Could not save or apply sensor settings: ${error.message}`);
+  }
+}
+
 async function enableNotifications() {
   if (!notifyCharacteristic) throw new Error("Connect to the sensor first.");
   if (notificationsActive) return;
@@ -135,6 +210,7 @@ async function disableNotifications() {
 
 function updateControls() {
   const connected = Boolean(device?.gatt?.connected);
+  const settingsLocked = ["calibrating", "canceling-calibration", "recording", "paused", "stopping", "reviewing", "saving"].includes(captureState);
   elements.connectButton.disabled = connectionPending;
   elements.connectLabel.textContent = connectionPending ? "Connecting…" : connected ? "Disconnect" : "Connect sensor";
   elements.connectButton.classList.toggle("is-connected", connected);
@@ -142,8 +218,17 @@ function updateControls() {
   elements.pauseButton.disabled = !["recording", "paused"].includes(captureState);
   elements.pauseButton.textContent = captureState === "paused" ? "Resume" : "Pause";
   elements.stopButton.disabled = !["recording", "paused"].includes(captureState);
-  elements.exerciseInput.disabled = ["countdown", "calibrating", "recording", "paused", "stopping", "reviewing"].includes(captureState);
+  elements.exerciseInput.disabled = ["calibrating", "canceling-calibration", "recording", "paused", "stopping", "reviewing"].includes(captureState);
   elements.calibrateButton.disabled = !connected || !["idle", "stopped"].includes(captureState);
+  for (const input of [
+    elements.customSensorName,
+    elements.startThreshold,
+    elements.reversalThreshold,
+    elements.restThreshold,
+    elements.saveSensorSettings,
+  ]) {
+    input.disabled = settingsLocked;
+  }
   updateDeviceStatus();
 }
 
@@ -194,8 +279,14 @@ async function connectSensor() {
     writeCharacteristic = await service.getCharacteristic(WRITE_UUID);
     notifyCharacteristic.addEventListener("characteristicvaluechanged", onTelemetry);
     await enableNotifications();
+    try {
+      await applyRepThresholds();
+    } catch (error) {
+      elements.settingsMessage.textContent = "Could not sync thresholds to the sensor.";
+      showError(`Connected, but rep thresholds were not applied: ${error.message}`);
+    }
     connectionPending = false;
-    setStatus(device.name || "Sensor connected", true);
+    setStatus(`${sensorDisplayName()} connected`, true);
     setMessage("Ready when you are. Start a set to calibrate the sensor.");
   } catch (error) {
     if (device?.gatt?.connected) device.gatt.disconnect();
@@ -232,11 +323,13 @@ function onDisconnected() {
   elements.calibrationState.dataset.calibrated = "false";
   if (["recording", "paused"].includes(captureState)) {
     void stopSession("Sensor disconnected. Review the rep count to save captured data.");
-  } else if (["countdown", "calibrating", "sensor-calibrating"].includes(captureState)) {
+  } else if (["calibrating", "sensor-calibrating", "canceling-calibration"].includes(captureState)) {
     elements.countdownDialog.hidden = true;
+    clearInterval(countdownTimer);
     captureState = "idle";
     session = null;
     setMessage("Connection lost before the set started. Reconnect and try again.");
+    elements.connectButton.focus();
   }
   setStatus("Sensor not connected", false);
   updateControls();
@@ -250,33 +343,13 @@ async function startSession() {
     createdAt: new Date().toISOString(),
     startedAt: null,
     exercise: elements.exerciseInput.value.trim() || "Workout set",
+    sensorName: sensorDisplayName(),
     samples: [],
     repCount: 0,
   };
   latestRepCount = 0;
   resetLiveValues();
   showPage("workout");
-  const countdownSeconds = Number(elements.countdownSetting.value);
-  if (countdownSeconds > 0) {
-    captureState = "countdown";
-    countdownRemaining = countdownSeconds;
-    elements.countdownNumber.textContent = String(countdownRemaining);
-    elements.countdownDialog.hidden = false;
-    setMessage(`Starting in ${countdownRemaining} seconds. Get into position.`);
-    updateControls();
-    countdownTimer = setInterval(() => {
-      countdownRemaining -= 1;
-      if (countdownRemaining <= 0) {
-        clearInterval(countdownTimer);
-        elements.countdownDialog.hidden = true;
-        void requestCalibration(true);
-        return;
-      }
-      elements.countdownNumber.textContent = String(countdownRemaining);
-      setMessage(`Starting in ${countdownRemaining} seconds. Get into position.`);
-    }, 1000);
-    return;
-  }
   await requestCalibration(true);
 }
 
@@ -286,42 +359,65 @@ async function requestCalibration(forSession) {
   elements.calibrationState.dataset.calibrated = "false";
   setMessage("Calibrating — keep the sensor still…");
   setStatus("Calibrating sensor…", true);
+  if (forSession) {
+    countdownRemaining = CALIBRATION_COUNTDOWN_SECONDS;
+    elements.countdownNumber.textContent = String(countdownRemaining);
+    elements.countdownMessage.textContent = "Hold the sensor still while it calibrates.";
+    elements.countdownDialog.hidden = false;
+    elements.countdownDialog.querySelector('[role="dialog"]')?.focus();
+    countdownTimer = setInterval(() => {
+      countdownRemaining -= 1;
+      if (countdownRemaining <= 0) {
+        clearInterval(countdownTimer);
+        elements.countdownNumber.textContent = "…";
+        elements.countdownMessage.textContent = "Finishing calibration…";
+        return;
+      }
+      elements.countdownNumber.textContent = String(countdownRemaining);
+    }, 1000);
+  }
   updateControls();
   try {
     await enableNotifications();
     await writeCharacteristic.writeValue(new Uint8Array([0x01]));
     calibrationTimer = setTimeout(() => {
-      if (["calibrating", "sensor-calibrating"].includes(captureState)) {
+      if (["calibrating", "sensor-calibrating", "canceling-calibration"].includes(captureState)) {
+        clearInterval(countdownTimer);
+        elements.countdownDialog.hidden = true;
         captureState = "idle";
         session = null;
         setMessage("Calibration timed out. Keep the sensor still and try again.");
         setStatus(
-          device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+          device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
           Boolean(device?.gatt?.connected)
         );
         showError("No calibration response from the sensor. Check the BLE connection and firmware.");
         updateControls();
+        elements.startButton.focus();
       }
     }, CALIBRATION_TIMEOUT_MS);
   } catch (error) {
+    clearInterval(countdownTimer);
+    elements.countdownDialog.hidden = true;
     captureState = "idle";
     session = null;
     setMessage("Could not start calibration.");
     setStatus(
-      device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+      device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
       Boolean(device?.gatt?.connected)
     );
     showError(`Start command failed: ${error.message}`);
     updateControls();
+    elements.startButton.focus();
   }
 }
 
 function cancelCountdown() {
   clearInterval(countdownTimer);
   elements.countdownDialog.hidden = true;
-  captureState = "idle";
+  captureState = "canceling-calibration";
   session = null;
-  setMessage("Start cancelled. Ready when you are.");
+  setMessage("Calibration is finishing. You can start a set when the sensor is ready.");
   updateControls();
 }
 
@@ -331,13 +427,13 @@ async function togglePause() {
     elements.phaseBadge.textContent = "PAUSED";
     elements.phaseBadge.classList.remove("phase-active");
     setMessage("Paused. Resume to continue logging this set.");
-    setStatus(`${device?.name || "Sensor"} · paused`, true);
+    setStatus(`${sensorDisplayName()} · paused`, true);
   } else if (captureState === "paused") {
     try {
       await enableNotifications();
       captureState = "recording";
       setMessage("Recording set data.");
-      setStatus(`${device?.name || "Sensor"} · recording`, true);
+      setStatus(`${sensorDisplayName()} · recording`, true);
     } catch (error) {
       showError(`Could not resume telemetry: ${error.message}`);
     }
@@ -370,10 +466,11 @@ async function stopSession(message = "Your set is saved on this device.") {
   elements.repCorrectionForm.hidden = true;
   elements.repCelebration.hidden = true;
   elements.repReviewDialog.hidden = false;
+  elements.repReviewDialog.querySelector('[role="dialog"]')?.focus();
   captureState = "reviewing";
   setMessage("Review the detected rep count to finish saving this set.");
   setStatus(
-    device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+    device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
     Boolean(device?.gatt?.connected)
   );
   updateControls();
@@ -410,7 +507,7 @@ async function saveReviewedSession(actualRepCount) {
     setMessage("Could not save set history. Check storage and retry saving the rep count.");
     showError(`Set data is still in memory but was not saved: ${error.message}`);
     setStatus(
-      device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+      device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
       Boolean(device?.gatt?.connected)
     );
     updateControls();
@@ -433,8 +530,9 @@ async function saveReviewedSession(actualRepCount) {
   elements.repCelebration.classList.remove("is-celebrating");
   void elements.repCelebration.offsetWidth;
   elements.repCelebration.classList.add("is-celebrating");
+  elements.finishReviewButton.focus();
   setStatus(
-    device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+    device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
     Boolean(device?.gatt?.connected)
   );
   await renderHistory();
@@ -442,7 +540,7 @@ async function saveReviewedSession(actualRepCount) {
 }
 
 function handleCalibration(status) {
-  if (!["calibrating", "sensor-calibrating"].includes(captureState)) return;
+  if (!["calibrating", "sensor-calibrating", "canceling-calibration"].includes(captureState)) return;
   if (status === "started") {
     elements.calibrationState.textContent = "Calibrating…";
     setMessage("Calibrating — keep the sensor still…");
@@ -450,33 +548,44 @@ function handleCalibration(status) {
   }
   if (status === "failed") {
     clearTimeout(calibrationTimer);
+    clearInterval(countdownTimer);
+    elements.countdownDialog.hidden = true;
     captureState = "idle";
     session = null;
     setMessage("Calibration failed. Check the sensor and try again.");
     setStatus(
-      device?.gatt?.connected ? `${device.name || "Sensor"} connected` : "Sensor not connected",
+      device?.gatt?.connected ? `${sensorDisplayName()} connected` : "Sensor not connected",
       Boolean(device?.gatt?.connected)
     );
     showError("The sensor could not complete its calibration.");
     updateControls();
+    elements.startButton.focus();
     return;
   }
   if (status === "complete") {
     clearTimeout(calibrationTimer);
+    clearInterval(countdownTimer);
+    elements.countdownDialog.hidden = true;
     elements.calibrationState.dataset.calibrated = "true";
-    if (captureState === "sensor-calibrating") {
+    if (captureState === "sensor-calibrating" || captureState === "canceling-calibration") {
+      const wasCancelled = captureState === "canceling-calibration";
       captureState = "idle";
-      setMessage("Calibration complete. The sensor is ready for your next set.");
-      setStatus(`${device?.name || "Sensor"} connected`, true);
+      session = null;
+      setMessage(wasCancelled
+        ? "Set cancelled. Calibration is complete and the sensor is ready."
+        : "Calibration complete. The sensor is ready for your next set.");
+      setStatus(`${sensorDisplayName()} connected`, true);
       updateControls();
+      elements.calibrateButton.focus();
       return;
     }
     session.startedAt = new Date().toISOString();
     captureState = "recording";
     elements.elapsedTime.textContent = "00:00";
     setMessage("Calibration complete. Recording your set.");
-    setStatus(device?.name ? `${device.name} · recording` : "Sensor connected · recording", true);
+    setStatus(`${sensorDisplayName()} · recording`, true);
     updateControls();
+    elements.pauseButton.focus();
   }
 }
 
@@ -721,7 +830,6 @@ function showPage(name) {
   const pages = {
     workout: [elements.workoutPage, elements.workoutTab],
     sensor: [elements.sensorPage, elements.sensorTab],
-    history: [elements.historyPage, elements.historyTab],
   };
   for (const [pageName, [page, tab]] of Object.entries(pages)) {
     page.hidden = pageName !== name;
@@ -730,6 +838,31 @@ function showPage(name) {
     else tab.removeAttribute("aria-current");
   }
   if (name === "workout") scheduleChart();
+}
+
+function keepFocusInDialog(event) {
+  if (event.key !== "Tab") return;
+  const backdrop = !elements.countdownDialog.hidden
+    ? elements.countdownDialog
+    : !elements.repReviewDialog.hidden ? elements.repReviewDialog : null;
+  if (!backdrop) return;
+  const dialog = backdrop.querySelector('[role="dialog"]');
+  const focusable = [...dialog.querySelectorAll("button:not(:disabled), input:not(:disabled)")]
+    .filter((element) => !element.closest("[hidden]"));
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && (
+    document.activeElement === dialog
+    || document.activeElement === first
+    || !dialog.contains(document.activeElement)
+  )) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 elements.connectButton.addEventListener("click", () => {
@@ -743,11 +876,9 @@ elements.calibrateButton.addEventListener("click", () => void requestCalibration
 elements.cancelCountdownButton.addEventListener("click", cancelCountdown);
 elements.workoutTab.addEventListener("click", () => showPage("workout"));
 elements.sensorTab.addEventListener("click", () => showPage("sensor"));
-elements.historyTab.addEventListener("click", () => showPage("history"));
-elements.countdownSetting.value = localStorage.getItem(COUNTDOWN_SETTING_KEY) || "3";
-elements.countdownSetting.addEventListener("change", () => {
-  localStorage.setItem(COUNTDOWN_SETTING_KEY, elements.countdownSetting.value);
-});
+elements.setupSensorButton.addEventListener("click", () => showPage("sensor"));
+elements.sensorSettingsForm.addEventListener("submit", (event) => void saveSensorSettings(event));
+loadSensorSettings();
 elements.confirmRepsButton.addEventListener("click", () => {
   if (session) void saveReviewedSession(session.repCount);
 });
@@ -775,7 +906,9 @@ elements.actualRepCount.addEventListener("input", () => elements.actualRepCount.
 elements.finishReviewButton.addEventListener("click", () => {
   elements.repReviewDialog.hidden = true;
   showPage("workout");
+  elements.startButton.focus();
 });
+document.addEventListener("keydown", keepFocusInDialog);
 window.addEventListener("resize", scheduleChart);
 setInterval(updateElapsed, 500);
 setInterval(updateDeviceStatus, 1000);

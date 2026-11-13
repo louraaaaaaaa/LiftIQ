@@ -1,4 +1,4 @@
-const CACHE_NAME = "liftiq-app-v3";
+const CACHE_NAME = "liftiq-app-v8";
 const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./protocol.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
