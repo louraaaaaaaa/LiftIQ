@@ -4,6 +4,10 @@ PC-side scripts for sensor bring-up and workout testing. The raw IMU plotting
 and orientation tools use USB serial; `firmware_debug.py` connects over BLE.
 These are development tools, not part of the firmware or eventual phone app.
 
+> The `LiftIQ_BLE` firmware no longer prints the 100 Hz serial plotter stream,
+> battery line or phase/rep banners by default. To use any serial plotter tool
+> with it, set `#define DEBUG_SERIAL_STREAM 1` at the top of the sketch and reflash.
+
 The USB serial tools log their raw `ax,ay,az,gx,gy,gz` stream to
 `recordings/<tool>_NNN.csv` by default (auto-incrementing, new file per
 run and per re-zero) — see [recordings/README.md](recordings/README.md).
@@ -69,9 +73,8 @@ distinction between exercises).
 Live Bluetooth LE dashboard for telemetry from
 `firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`.
 It shows body-frame acceleration X/Y/Z, total and dynamic acceleration,
-current phase, rep count, and measured notification rate. The firmware's
-speed-estimate field is reserved and set to zero; it should not be interpreted
-as a measurement.
+current phase, rep count, and measured notification rate. Bytes 10-11
+of each packet are a sample sequence counter, not a speed estimate.
 
 Install dependencies, flash `firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`, then
 run:
@@ -104,6 +107,8 @@ confirms calibration. This replaces boot-time calibration and resets the
 firmware rep counter for each new session. The firmware's BLE "start new
 set" command requests the same calibration. Calibration averages the
 accelerometer's gravity vector; the rep detector does not use gyroscope data.
+Rep tracking stays disabled after boot until a start-set calibration completes,
+so initial gravity-vector mismatch cannot trigger a false phase.
 
 Calibration progress and missing calibration acknowledgments are shown in
 the connection status.
@@ -115,7 +120,8 @@ CSV preserves pauses as gaps; no samples are captured during those gaps.
 
 BLE telemetry is sent at up to 50 Hz using 18-byte notifications: six
 little-endian signed 16-bit values (five acceleration values scaled by 100
-and a reserved zero speed slot), phase, calibration status, a 16-bit rep
+and a wrapping uint16 sample sequence counter in bytes 10-11, incremented per
+notification sent), phase, calibration status (byte 13, persistent state in every packet: 0 none, 1 calibrating, 2 calibrated/tracking, 3 failed), a 16-bit rep
 count, and battery voltage in millivolts. The dashboard also accepts legacy
 16-byte notifications, which do not include battery voltage.
 Acceleration is displayed in m/s^2, including gravity in the raw XYZ and
@@ -127,9 +133,8 @@ and total-magnitude deviation exceed their thresholds, detects sustained
 signed acceleration reversals along the onset axis, and requires a return to
 stable rest. Magnitude gating helps reject orientation-only changes. The phase
 labels describe acceleration events, not directly measured travel direction;
-a sensor cannot observe constant-speed motion from acceleration alone. The BLE
-speed slot is reserved and set to zero, and is omitted from the dashboard and
-its CSV.
+a sensor cannot observe constant-speed motion from acceleration alone. Bytes 10-11
+of the BLE packet are a sequence counter (formerly a reserved zero speed slot).
 
 ## Rep tracking metrics and next tuning steps
 
@@ -148,8 +153,9 @@ its CSV.
   pair acceleration with a position sensor. Acceleration alone cannot resolve
   direction during constant-speed segments.
 - Check sensor clipping and actual sample intervals. The Test sketch uses
-  the BMI160 ±2g range; raise the range if representative machine motion
-  approaches that limit. Keep the measured sample rate near the intended
+  the BMI160 range (the `tools/recordings/app-sessions` capture clipped at about
+  2 g with the old ±2 g setting; current firmware uses ±8 g); raise the range if
+  representative machine motion approaches that limit. Keep the measured sample rate near the intended
   100 Hz and discard or flag long gaps.
 - Validate counts against manually labeled sets across different exercises,
   mounting orientations, loads, and rep tempos before treating thresholds

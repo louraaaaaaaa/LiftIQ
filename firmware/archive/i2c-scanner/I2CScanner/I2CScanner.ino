@@ -10,8 +10,8 @@
 
 #include <Wire.h>
 
-const int PIN_SDA = 5;  // XIAO ESP32-S3 D4
-const int PIN_SCL = 6;  // XIAO ESP32-S3 D5
+const int PIN_SDA = 6;  // XIAO ESP32-S3 D4
+const int PIN_SCL = 7;  // XIAO ESP32-S3 D5
 
 const char* knownDevice(uint8_t addr) {
   switch (addr) {

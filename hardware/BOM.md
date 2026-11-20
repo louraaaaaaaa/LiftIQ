@@ -15,17 +15,35 @@
 |---|---|---|
 | I2C SDA | D4 | GPIO6 |
 | I2C SCL | D5 | GPIO7 |
-| Battery monitor | D1 | GPIO3 / ADC1_CH3; connect only through the specified divider |
+| Battery monitor | D3 pad (divider midpoint), **jumpered to D1 = GPIO3 / ADC1_CH3** | D3/GPIO5 is ADC2 and cannot be read in software on the ESP32-C3; connect only through the specified divider |
 
 ### Battery monitor input
 
-The current BLE firmware reads battery voltage on D1/GPIO3/ADC1_CH3. Use a
-2:1 resistive divider between LiPo positive and D1 (for example 47 kΩ from
-battery positive to D1, and 47 kΩ from D1 to ground); add a 100 nF capacitor
-from D1 to ground to reduce ADC noise. Battery negative, divider ground, and
-XIAO ground must be common. With a single-cell LiPo this keeps the ADC input
-near or below 2.1 V at full charge. **Never connect a LiPo cell directly to
-D1.**
+The current BLE firmware (`PIN_BATTERY = 3`) reads the divider midpoint on D1/GPIO3 (via the jumper below), averaging 16 samples, and reconstructs
+the cell voltage using the configured 2:1 ratio. Use a 2:1 resistive divider
+between LiPo positive and D3 (for example 47 kΩ from battery positive to D3,
+and 47 kΩ from D3 to ground); add a 100 nF capacitor from D3 to ground to
+reduce ADC noise. Battery negative, divider ground, and XIAO ground must be
+common. With a single-cell LiPo this keeps the ADC input near or below 2.1 V at
+full charge. **Never connect a LiPo cell directly to D3.**
+
+**D3/GPIO5 cannot be read in software.** On the XIAO ESP32C3 D3 is GPIO5 = ADC2_CH0, and
+the ESP-IDF in Arduino-ESP32 core 3.3.12 logs `adc_oneshot_new_unit: adc unit not
+supported` (ESP_ERR_NOT_SUPPORTED) for ADC2, so both `analogReadMilliVolts` and
+`analogRead` return 0 there, even though a multimeter shows 2.02 V on the pin (LiPo about
+4.04 V through the 2:1 divider). The PCB therefore needs a jumper:
+
+1. On the XIAO, check that D1 (GPIO3) is unused on the custom PCB (no net, nothing
+   driving it).
+2. Solder a short wire from the **D3 pad to the D1 pad**. D3 stays an unused,
+   floating input (the firmware never configures or drives it).
+3. The firmware reads D1/GPIO3 with `analogReadMilliVolts` (16-sample average). Without
+   the jumper the pin reads 0 mV, the boot line prints a warning and the app shows
+   "No battery". Confirm on the board which pad the wire is soldered to: the Serial boot
+   line `[BATTERY] boot: pin D1/GPIO3=... mV` must read about half the cell voltage.
+
+The boot line `[BATTERY] boot: ...` is always printed; the opt-in `DEBUG_DIAG 1` build adds
+a `[DIAG]` line every 5 s that includes the battery millivolts.
 
 Do not use D9 for this input on the XIAO ESP32C3: D9 is GPIO9, a boot-strapping
 pin, and is not an ADC input. Verify the actual PCB net and divider with a
@@ -33,9 +51,10 @@ multimeter before connecting a battery. The existing Gerber export has not yet
 been verified or revised for this C3 pin mapping; see
 [`manufacturing/README.md`](manufacturing/README.md).
 
-The app estimates charge from the reported voltage, not from a battery
-fuel-gauge IC. The estimate varies with cell chemistry, load, temperature, and
-whether the cell is resting or charging.
+The app linearly estimates charge between 3.3 V (0%) and 4.2 V (100%) from the
+reported cell voltage, not from a battery fuel-gauge IC. The estimate varies
+with cell chemistry, load, temperature, and whether the cell is resting or
+charging.
 
 The XIAO ESP32C3 pin map uses D4/GPIO6 for SDA and D5/GPIO7 for SCL. The
 current firmware explicitly initializes `Wire` with these pins. The BMI160
@@ -47,7 +66,10 @@ Firmware library: `DFRobot_BMI160` (Arduino Library Manager) — the
 `hanyazou/BMI160-Arduino` library originally planned isn't in Library
 Manager and wasn't pursued further once DFRobot's was confirmed working.
 Note DFRobot_BMI160 hardcodes accel/gyro range to +/-2g / +/-2000dps
-internally with no public setter to change it.
+internally with no public setter to change it. The firmware therefore writes the
+BMI160 ACC_RANGE (0x41) register itself after `I2cInit` (currently +/-8 g, 4096
+LSB/g) and reads accelerometer data directly over I2C, because the library inserts
+`delay(10)` plus `delay(1)` per byte in every read.
 
 ### GY-BMI160 breakout pins (all 12), per the Bosch datasheet's pin-out
 table and I2C reference schematic (Figures 31/33, pages 101-102)

@@ -82,6 +82,22 @@ class FirmwareDebugParserTests(unittest.TestCase):
                 self.assertIsNotNone(decoded)
                 self.assertEqual(decoded[1], expected_status)
 
+    def test_decodes_sequence_counter_as_unsigned_and_legacy_has_none(self):
+        packet = struct.pack("<6hBBHH", 0, 0, 0, 0, 0, -1, 0, 2, 3, 3900)
+        sample, status = parse_ble_packet(packet)
+        self.assertEqual(sample.seq, 65535)
+        self.assertEqual(status, "complete")
+        legacy = parse_ble_packet(struct.pack("<6hBBH", 0, 0, 0, 0, 0, 0, 0, 0, 0))
+        self.assertIsNone(legacy[0].seq)
+
+    def test_status_byte_is_persistent_state_not_an_event(self):
+        # Status 2 in every packet still decodes a full sample alongside the status.
+        packet = struct.pack("<6hBBHH", 100, 0, 981, 981, 5, 10, 1, 2, 4, 3900)
+        sample, status = parse_ble_packet(packet)
+        self.assertEqual(status, "complete")
+        self.assertEqual(sample.rep_count, 4)
+        self.assertEqual(sample.ax, 1.0)
+
     def test_rejects_malformed_ble_packet(self):
         self.assertIsNone(parse_ble_packet(b"short"))
         self.assertIsNone(parse_ble_packet(bytes(17)))

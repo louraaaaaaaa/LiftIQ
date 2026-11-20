@@ -7,7 +7,7 @@ firmware, the phone app, and archived development sketches.
 ## Current prototype
 
 - **Firmware:** [`firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`](firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino)
-  advertises the `GymIQ Sensor` BLE service and streams live acceleration,
+  advertises a `LiftIQ-XXXX` BLE service (XXXX = last two Bluetooth MAC bytes; the app also accepts the legacy `GymIQ Sensor` name) and streams live acceleration,
   acceleration-based phase, calibration status, rep count, and battery voltage.
   Speed estimation is disabled because the IMU-only estimate drifted in tests.
 - **Phone app:** [`app/`](app/README.md) is an installable, mobile-first
@@ -26,16 +26,18 @@ firmware, the phone app, and archived development sketches.
    <http://localhost:8000> in Chrome or Edge.
 3. For phone testing, publish `app/` to an HTTPS static host and open its URL
    in Chrome on Android. A LAN HTTP address does not grant Bluetooth access.
-4. Open **Sensor**, connect to **GymIQ Sensor**, and optionally set its custom
+4. Open **Sensor**, connect to your **LiftIQ-XXXX** sensor, and optionally set its custom
    name and rep thresholds. On **Workout**, start a set and keep the device
    still during the fixed five-second calibration countdown.
 5. Stop the set and confirm or correct the rep count. The samples and confirmed
    count are saved in that browser's history; expand **Set history** to download
    a CSV copy.
 
-The current firmware reads the optional battery divider at D1/GPIO3 (ADC1).
-Never connect a LiPo cell directly to a GPIO. The exported PCB files have not
-yet been checked against the ESP32C3 footprint and D1 battery net; review
+The battery divider midpoint is on D3/GPIO5 (ADC2), which the ESP32-C3 cannot read in software; fit a jumper from the D3 pad to D1/GPIO3 (ADC1) and the firmware (`PIN_BATTERY = 3`) reads it there with `analogReadMilliVolts`, averaging 16 samples (see `hardware/BOM.md` and `docs/DEVELOPMENT.md`). The accelerometer runs at ±8 g, polled at 100 Hz with 50 Hz BLE notifications.
+The app estimates charge linearly from 3.3–4.2 V; it is not a fuel-gauge
+measurement. Never
+connect a LiPo cell directly to a GPIO. The exported PCB files have not yet
+been checked against the ESP32C3 footprint and battery net; review
 [`hardware/manufacturing/README.md`](hardware/manufacturing/README.md) before
 ordering or assembly. See [hardware/BOM.md](hardware/BOM.md) for wiring.
 

@@ -38,6 +38,9 @@ class TelemetrySample:
     dynamic_accel: float
     phase: int
     rep_count: Optional[int]
+    # Wrapping uint16 firmware sample counter (bytes 10-11 of the 18-byte
+    # packet); None for legacy 16-byte packets.
+    seq: Optional[int] = None
 
 
 @dataclass(frozen=True)
@@ -96,7 +99,7 @@ def parse_ble_packet(
         return None
     encoded = struct.unpack_from(BLE_PACKET_FORMAT, data)
     ax, ay, az, total_accel, dynamic_accel = (value / 100.0 for value in encoded[:5])
-    ax, ay, az, total_accel, dynamic_accel = (value / 100.0 for value in encoded[:5])
+    seq = (encoded[5] & 0xFFFF) if len(data) == BLE_PACKET_SIZE + 2 else None
     phase, calibration_status, rep_count = encoded[6:]
     if phase not in PHASE_NAMES or calibration_status not in CALIBRATION_STATUS:
         return None
@@ -109,6 +112,7 @@ def parse_ble_packet(
         dynamic_accel=dynamic_accel,
         phase=phase,
         rep_count=rep_count,
+        seq=seq,
     )
     return sample, CALIBRATION_STATUS[calibration_status]
 
@@ -121,9 +125,14 @@ async def bluetooth_worker(
 ) -> None:
     known_devices = {}
     client: Optional[BleakClient] = None
+    # Byte 13 is persistent state present in EVERY packet (0 none, 1 calibrating,
+    # 2 calibrated, 3 failed), so calibration events are emitted on CHANGE only
+    # and every packet still produces a sample.
+    last_status: Dict[str, Optional[str]] = {"value": None}
 
     def on_disconnect(_client: BleakClient) -> None:
         del _client
+        last_status["value"] = None
         events.put(
             StatusEvent(
                 "Bluetooth device disconnected",
@@ -143,9 +152,10 @@ async def bluetooth_worker(
 
         timestamp = time.monotonic()
         sample, status = decoded
-        if status is not None:
-            events.put(CalibrationEvent(status, timestamp))
-            return
+        if status != last_status["value"]:
+            last_status["value"] = status
+            if status is not None:
+                events.put(CalibrationEvent(status, timestamp))
         events.put(SampleEvent(sample, timestamp))
 
     while not stop_event.is_set():
@@ -206,6 +216,10 @@ async def bluetooth_worker(
             elif command == "write" and isinstance(value, bytes):
                 if client is None or not client.is_connected:
                     raise BleakError("Connect to the LiftIQ sensor before sending commands.")
+                if value[:1] == bytes([1]):
+                    # New calibration: forget the old status so a repeated
+                    # "complete" is reported as a change.
+                    last_status["value"] = None
                 await client.write_gatt_char(
                     WRITE_CHARACTERISTIC_UUID, value, response=True
                 )

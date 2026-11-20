@@ -1,5 +1,5 @@
-const CACHE_NAME = "liftiq-app-v8";
-const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./protocol.js", "./manifest.webmanifest", "./icon.svg"];
+const CACHE_NAME = "liftiq-app-v11";
+const APP_FILES = ["./", "./index.html", "./styles.css", "./app.js", "./protocol.js", "./packet-stats.js", "./session.js", "./ble.js", "./storage.js", "./chart.js", "./ui.js", "./wakelock.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_FILES)));
