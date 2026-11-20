@@ -49,7 +49,7 @@ Do not use D9 for this input on the XIAO ESP32C3: D9 is GPIO9, a boot-strapping
 pin, and is not an ADC input. Verify the actual PCB net and divider with a
 multimeter before connecting a battery. The existing Gerber export has not yet
 been verified or revised for this C3 pin mapping; see
-[`manufacturing/README.md`](manufacturing/README.md).
+[`pcb/README.md`](pcb/README.md).
 
 The app linearly estimates charge between 3.3 V (0%) and 4.2 V (100%) from the
 reported cell voltage, not from a battery fuel-gauge IC. The estimate varies

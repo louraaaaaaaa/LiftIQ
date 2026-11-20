@@ -1,16 +1,25 @@
 # tools
 
-PC-side scripts for sensor bring-up and workout testing. The raw IMU plotting
-and orientation tools use USB serial; `firmware_debug.py` connects over BLE.
-These are development tools, not part of the firmware or eventual phone app.
+PC-side scripts for sensor bring-up and workout testing, grouped by transport:
+
+| Folder | Content |
+|---|---|
+| `serial/` | USB-serial tools: `liftiq_serial.py` (shared helpers), `accel_plot.py`, `imu_cube_view.py`, `liftiq_orientation.py`, `rep_counter.py` |
+| `ble/` | `firmware_debug.py` (BLE dashboard) and its test, `check_protocol_serial.py` (verify the board's packet encoder against the golden vectors) |
+| `trajectory/` | offline trajectory analysis of raw 6-axis captures ([README](trajectory/README.md)) |
+| `release-app.mjs` | promotes `app/dev` to `app/stable` (see `app/README.md`) |
+
+The raw IMU plotting and orientation tools use USB serial; `firmware_debug.py` connects over BLE.
+These are development tools, not part of the firmware or eventual phone app. Run them from their folder
+(they import siblings), e.g. `cd tools/serial && python imu_cube_view.py --port COM5`.
 
 > The `LiftIQ_BLE` firmware no longer prints the 100 Hz serial plotter stream,
 > battery line or phase/rep banners by default. To use any serial plotter tool
 > with it, set `#define DEBUG_SERIAL_STREAM 1` at the top of the sketch and reflash.
 
 The USB serial tools log their raw `ax,ay,az,gx,gy,gz` stream to
-`recordings/<tool>_NNN.csv` by default (auto-incrementing, new file per
-run and per re-zero) — see [recordings/README.md](recordings/README.md).
+`data/recordings/serial-legacy/<tool>_NNN.csv` by default (auto-incrementing, new file per
+run and per re-zero) - see [data/recordings/README.md](../data/recordings/README.md).
 `imu_cube_view.py`/`rep_counter.py` take `--no-log` to disable it;
 `accel_plot.py` has a `LOG_TO_CSV` constant at the top of the file.
 
@@ -23,7 +32,7 @@ accel/gyro stream from
 Setup:
 
 ```bash
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 ```
 
 Flash `firmware/archive/serial-imu-bringup/LiftIQ_Serial/LiftIQ_Serial.ino`,
@@ -68,19 +77,33 @@ intentionally simple — a starting point to validate rep counting
 end-to-end, not the final algorithm (no displacement, no ZUPT, no
 distinction between exercises).
 
+## check_protocol_serial.py
+
+Hardware-in-the-loop check of the firmware's v1 packet encoder. Set `#define DEBUG_PROTOCOL_SELFTEST 1`
+in the sketch (default 0), flash, then:
+
+```bash
+cd tools/ble
+python check_protocol_serial.py --port COM5          # reboots the board via RTS, reads the [PROTO] lines
+python check_protocol_serial.py --file boot_log.txt  # or compare a saved serial log
+```
+
+It compares every `[PROTO] <name> <hex>` line the board prints at boot with
+`tests/compat/golden/v1_vectors.json` byte for byte (exit 0 = match). Set the flag back to 0 afterwards.
+
 ## firmware_debug.py
 
 Live Bluetooth LE dashboard for telemetry from
-`firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`.
+`firmware/LiftIQ_BLE/LiftIQ_BLE.ino`.
 It shows body-frame acceleration X/Y/Z, total and dynamic acceleration,
 current phase, rep count, and measured notification rate. Bytes 10-11
 of each packet are a sample sequence counter, not a speed estimate.
 
-Install dependencies, flash `firmware/current/LiftIQ_BLE/LiftIQ_BLE.ino`, then
+Install dependencies, flash `firmware/LiftIQ_BLE/LiftIQ_BLE.ino`, then
 run:
 
 ```bash
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 python firmware_debug.py
 python firmware_debug.py --window 15
 ```
@@ -153,7 +176,7 @@ of the BLE packet are a sequence counter (formerly a reserved zero speed slot).
   pair acceleration with a position sensor. Acceleration alone cannot resolve
   direction during constant-speed segments.
 - Check sensor clipping and actual sample intervals. The Test sketch uses
-  the BMI160 range (the `tools/recordings/app-sessions` capture clipped at about
+  the BMI160 range (the `data/recordings/app-sessions` capture clipped at about
   2 g with the old ±2 g setting; current firmware uses ±8 g); raise the range if
   representative machine motion approaches that limit. Keep the measured sample rate near the intended
   100 Hz and discard or flag long gaps.

@@ -1,0 +1,6 @@
+{
+  "name": "liftiq-compat-tests",
+  "private": true,
+  "type": "module",
+  "description": "Firmware <-> app compatibility gates (docs/PROTOCOL.md). Run: cd app && npm run compat"
+}

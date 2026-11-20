@@ -1,0 +1,692 @@
+{
+  "contract": "LiftIQ BLE protocol v1 golden vectors",
+  "note": "FROZEN CONTRACT (docs/PROTOCOL.md). Existing vectors must never change; new vectors may be added. All numbers little-endian. hex = the exact notification bytes.",
+  "telemetryV1": [
+    {
+      "name": "idle_at_rest",
+      "description": "Boot state: nothing calibrated, no battery reading",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 0,
+        "phase": 0,
+        "calibrationStatus": 0,
+        "repCount": 0,
+        "batteryMillivolts": 0
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 00 00 00 00 00 00 00 00",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 0,
+        "phase": 0,
+        "calibration": null,
+        "calibrationCode": 0,
+        "repCount": 0,
+        "batteryMillivolts": 0
+      }
+    },
+    {
+      "name": "idle_calibrated_battery_4150",
+      "description": "Calibrated and tracking, idle, 4150 mV",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0.03,
+        "seq": 1234,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4150
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 03 00 d2 04 00 02 00 00 36 10",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0.03,
+        "seq": 1234,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4150
+      }
+    },
+    {
+      "name": "concentric_rep3",
+      "description": "Concentric phase, 3 reps counted, 4012 mV",
+      "input": {
+        "ax": 1.5,
+        "ay": -0.25,
+        "az": 12.34,
+        "totalAccel": 12.5,
+        "dynamicAccel": 2.69,
+        "seq": 2000,
+        "phase": 1,
+        "calibrationStatus": 2,
+        "repCount": 3,
+        "batteryMillivolts": 4012
+      },
+      "hex": "96 00 e7 ff d2 04 e2 04 0d 01 d0 07 01 02 03 00 ac 0f",
+      "decoded": {
+        "ax": 1.5,
+        "ay": -0.25,
+        "az": 12.34,
+        "totalAccel": 12.5,
+        "dynamicAccel": 2.69,
+        "seq": 2000,
+        "phase": 1,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 3,
+        "batteryMillivolts": 4012
+      }
+    },
+    {
+      "name": "eccentric_rep3",
+      "description": "Eccentric phase, negative accelerations",
+      "input": {
+        "ax": -3.1,
+        "ay": 0.45,
+        "az": 7.02,
+        "totalAccel": 7.68,
+        "dynamicAccel": -2.13,
+        "seq": 2001,
+        "phase": 2,
+        "calibrationStatus": 2,
+        "repCount": 3,
+        "batteryMillivolts": 4010
+      },
+      "hex": "ca fe 2d 00 be 02 00 03 2b ff d1 07 02 02 03 00 aa 0f",
+      "decoded": {
+        "ax": -3.1,
+        "ay": 0.45,
+        "az": 7.02,
+        "totalAccel": 7.68,
+        "dynamicAccel": -2.13,
+        "seq": 2001,
+        "phase": 2,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 3,
+        "batteryMillivolts": 4010
+      }
+    },
+    {
+      "name": "calibrating_status1",
+      "description": "Calibration running (status 1), reps reset to 0",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 10,
+        "phase": 0,
+        "calibrationStatus": 1,
+        "repCount": 0,
+        "batteryMillivolts": 3950
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 0a 00 00 01 00 00 6e 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 10,
+        "phase": 0,
+        "calibration": "started",
+        "calibrationCode": 1,
+        "repCount": 0,
+        "batteryMillivolts": 3950
+      }
+    },
+    {
+      "name": "calibrated_status2",
+      "description": "Calibration finished (status 2) directly after status 1",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 260,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3948
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 04 01 00 02 00 00 6c 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 260,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3948
+      }
+    },
+    {
+      "name": "failed_status3",
+      "description": "Calibration failed (status 3)",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 261,
+        "phase": 0,
+        "calibrationStatus": 3,
+        "repCount": 0,
+        "batteryMillivolts": 3947
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 05 01 00 03 00 00 6b 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 261,
+        "phase": 0,
+        "calibration": "failed",
+        "calibrationCode": 3,
+        "repCount": 0,
+        "batteryMillivolts": 3947
+      }
+    },
+    {
+      "name": "battery_unavailable_0mv",
+      "description": "Battery 0 = unavailable (USB only / no divider)",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 5,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 1,
+        "batteryMillivolts": 0
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 05 00 00 02 01 00 00 00",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 5,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 1,
+        "batteryMillivolts": 0
+      }
+    },
+    {
+      "name": "battery_4150mv",
+      "description": "Battery 4150 mV",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 6,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4150
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 06 00 00 02 00 00 36 10",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 6,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4150
+      }
+    },
+    {
+      "name": "battery_max_65535mv",
+      "description": "Battery field at the u16 maximum",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 7,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 65535
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 07 00 00 02 00 00 ff ff",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 7,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 65535
+      }
+    },
+    {
+      "name": "seq_65535",
+      "description": "Sequence counter at its last value before wrapping",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 65535,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4100
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 ff ff 00 02 00 00 04 10",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 65535,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4100
+      }
+    },
+    {
+      "name": "seq_wrapped_0",
+      "description": "Sequence counter wrapped to 0 (follows seq_65535)",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 0,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4100
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 00 00 00 02 00 00 04 10",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 0,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4100
+      }
+    },
+    {
+      "name": "reps_300",
+      "description": "Rep count above 255 needs both bytes",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 9000,
+        "phase": 1,
+        "calibrationStatus": 2,
+        "repCount": 300,
+        "batteryMillivolts": 4000
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 28 23 01 02 2c 01 a0 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 9000,
+        "phase": 1,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 300,
+        "batteryMillivolts": 4000
+      }
+    },
+    {
+      "name": "reps_65535",
+      "description": "Rep count at the u16 maximum",
+      "input": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 9001,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 65535,
+        "batteryMillivolts": 4000
+      },
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 29 23 00 02 ff ff a0 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": 9001,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 65535,
+        "batteryMillivolts": 4000
+      }
+    },
+    {
+      "name": "accel_max_32767",
+      "description": "All accelerations at the int16 maximum (327.67 m/s^2)",
+      "input": {
+        "ax": 327.67,
+        "ay": 327.67,
+        "az": 327.67,
+        "totalAccel": 327.67,
+        "dynamicAccel": 327.67,
+        "seq": 42,
+        "phase": 1,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3900
+      },
+      "hex": "ff 7f ff 7f ff 7f ff 7f ff 7f 2a 00 01 02 00 00 3c 0f",
+      "decoded": {
+        "ax": 327.67,
+        "ay": 327.67,
+        "az": 327.67,
+        "totalAccel": 327.67,
+        "dynamicAccel": 327.67,
+        "seq": 42,
+        "phase": 1,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3900
+      }
+    },
+    {
+      "name": "accel_min_32768",
+      "description": "All accelerations at the int16 minimum (-327.68 m/s^2)",
+      "input": {
+        "ax": -327.68,
+        "ay": -327.68,
+        "az": -327.68,
+        "totalAccel": -327.68,
+        "dynamicAccel": -327.68,
+        "seq": 43,
+        "phase": 2,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3900
+      },
+      "hex": "00 80 00 80 00 80 00 80 00 80 2b 00 02 02 00 00 3c 0f",
+      "decoded": {
+        "ax": -327.68,
+        "ay": -327.68,
+        "az": -327.68,
+        "totalAccel": -327.68,
+        "dynamicAccel": -327.68,
+        "seq": 43,
+        "phase": 2,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 3900
+      }
+    },
+    {
+      "name": "accel_8g_peak",
+      "description": "Typical +/-8 g sensor peak, 29.1 m/s^2 on one axis",
+      "input": {
+        "ax": 29.1,
+        "ay": -1.2,
+        "az": 4.55,
+        "totalAccel": 29.5,
+        "dynamicAccel": 19.69,
+        "seq": 777,
+        "phase": 1,
+        "calibrationStatus": 2,
+        "repCount": 8,
+        "batteryMillivolts": 4050
+      },
+      "hex": "5e 0b 88 ff c7 01 86 0b b1 07 09 03 01 02 08 00 d2 0f",
+      "decoded": {
+        "ax": 29.1,
+        "ay": -1.2,
+        "az": 4.55,
+        "totalAccel": 29.5,
+        "dynamicAccel": 19.69,
+        "seq": 777,
+        "phase": 1,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 8,
+        "batteryMillivolts": 4050
+      }
+    },
+    {
+      "name": "encoder_saturates_out_of_range",
+      "description": "Inputs beyond +/-327 m/s^2 are clamped by the encoder (firmware-side behaviour)",
+      "input": {
+        "ax": 500,
+        "ay": -500,
+        "az": 1000,
+        "totalAccel": -1000,
+        "dynamicAccel": 0,
+        "seq": 11,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4000
+      },
+      "hex": "ff 7f 00 80 ff 7f 00 80 00 00 0b 00 00 02 00 00 a0 0f",
+      "decoded": {
+        "ax": 327.67,
+        "ay": -327.68,
+        "az": 327.67,
+        "totalAccel": -327.68,
+        "dynamicAccel": 0,
+        "seq": 11,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4000
+      }
+    },
+    {
+      "name": "encoder_rounds_to_nearest",
+      "description": "0.004 -> 0, 0.006 -> 1, -0.006 -> -1 (lroundf at x100)",
+      "input": {
+        "ax": 0.004,
+        "ay": 0.006,
+        "az": -0.006,
+        "totalAccel": 0,
+        "dynamicAccel": 0,
+        "seq": 12,
+        "phase": 0,
+        "calibrationStatus": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4000
+      },
+      "hex": "00 00 01 00 ff ff 00 00 00 00 0c 00 00 02 00 00 a0 0f",
+      "decoded": {
+        "ax": 0,
+        "ay": 0.01,
+        "az": -0.01,
+        "totalAccel": 0,
+        "dynamicAccel": 0,
+        "seq": 12,
+        "phase": 0,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 0,
+        "batteryMillivolts": 4000
+      }
+    }
+  ],
+  "telemetryLegacy16": [
+    {
+      "name": "legacy16_idle",
+      "description": "16-byte packet from the very first firmware: no seq, no battery",
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 00 00 00 00 00 00",
+      "decoded": {
+        "ax": 0,
+        "ay": 0,
+        "az": 9.81,
+        "totalAccel": 9.81,
+        "dynamicAccel": 0,
+        "seq": null,
+        "phase": 0,
+        "calibration": null,
+        "calibrationCode": 0,
+        "repCount": 0,
+        "batteryMillivolts": null
+      }
+    },
+    {
+      "name": "legacy16_concentric_2reps",
+      "description": "16-byte packet, concentric, 2 reps, calibrated",
+      "hex": "96 00 e7 ff d2 04 e2 04 0d 01 00 00 01 02 02 00",
+      "decoded": {
+        "ax": 1.5,
+        "ay": -0.25,
+        "az": 12.34,
+        "totalAccel": 12.5,
+        "dynamicAccel": 2.69,
+        "seq": null,
+        "phase": 1,
+        "calibration": "complete",
+        "calibrationCode": 2,
+        "repCount": 2,
+        "batteryMillivolts": null
+      }
+    }
+  ],
+  "telemetryInvalid": [
+    {
+      "name": "invalid_length_17",
+      "description": "Wrong length: decoders must reject",
+      "hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+    },
+    {
+      "name": "invalid_length_19",
+      "description": "Wrong length: decoders must reject",
+      "hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+    },
+    {
+      "name": "invalid_phase_3",
+      "description": "Phase out of range",
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 00 00 03 00 00 00 00 00"
+    },
+    {
+      "name": "invalid_status_4",
+      "description": "Calibration status out of range",
+      "hex": "00 00 00 00 d5 03 d5 03 00 00 00 00 00 04 00 00 00 00"
+    }
+  ],
+  "infoV1": [
+    {
+      "name": "info_current_firmware",
+      "description": "INFO of protocol 1.1 firmware with raw capture",
+      "input": {
+        "protocolMajor": 1,
+        "protocolMinor": 1,
+        "capabilities": 1,
+        "firmware": "liftiq-fw s0.3"
+      },
+      "hex": "01 01 01 00 6c 69 66 74 69 71 2d 66 77 20 73 30 2e 33 00 00",
+      "decoded": {
+        "protocolMajor": 1,
+        "protocolMinor": 1,
+        "capabilities": 1,
+        "rawCapture": true,
+        "firmware": "liftiq-fw s0.3"
+      }
+    },
+    {
+      "name": "info_no_capabilities_max_fw_string",
+      "description": "Capabilities 0, 16-character firmware string (no NUL)",
+      "input": {
+        "protocolMajor": 1,
+        "protocolMinor": 0,
+        "capabilities": 0,
+        "firmware": "0123456789abcdef"
+      },
+      "hex": "01 00 00 00 30 31 32 33 34 35 36 37 38 39 61 62 63 64 65 66",
+      "decoded": {
+        "protocolMajor": 1,
+        "protocolMinor": 0,
+        "capabilities": 0,
+        "rawCapture": false,
+        "firmware": "0123456789abcdef"
+      }
+    },
+    {
+      "name": "info_truncates_long_fw_string",
+      "description": "Strings longer than 16 chars are truncated by the encoder",
+      "input": {
+        "protocolMajor": 1,
+        "protocolMinor": 1,
+        "capabilities": 1,
+        "firmware": "0123456789abcdefXYZ"
+      },
+      "hex": "01 01 01 00 30 31 32 33 34 35 36 37 38 39 61 62 63 64 65 66",
+      "decoded": {
+        "protocolMajor": 1,
+        "protocolMinor": 1,
+        "capabilities": 1,
+        "rawCapture": true,
+        "firmware": "0123456789abcdef"
+      }
+    }
+  ]
+}

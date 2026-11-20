@@ -5,8 +5,8 @@ firmware/sdkconfig
 firmware/sdkconfig.old
 firmware/managed_components/
 
-# Node / React Native / Flutter (app, once chosen)
-app/node_modules/
+# Node (app/, tests/)
+node_modules/
 app/build/
 app/.dart_tool/
 app/.gradle/
@@ -14,6 +14,15 @@ app/.gradle/
 # Python (tools/)
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# Generated analysis output (plots etc.); recordings themselves (data/recordings/**.csv) are kept
+tools/**/out/
+data/recordings/**/analysis/
+
+# Backups and scratch copies
+*.bak
+*.orig
 
 # OS
 .DS_Store

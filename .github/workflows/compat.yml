@@ -1,0 +1,47 @@
+name: Compatibility and unit tests
+
+# Gates from docs/PROTOCOL.md: every firmware version must keep working with the latest STABLE app.
+# No Arduino toolchain needed: the firmware packet encoder (firmware/LiftIQ_BLE/protocol_v1.h) is
+# compiled with the host g++ and checked against the golden vectors.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: g++ present (host-compiled firmware encoder test)
+        run: g++ --version
+      - name: App dev unit tests
+        working-directory: app
+        run: npm run test
+      - name: App stable unit tests
+        working-directory: app
+        run: npm run test:stable
+      - name: Firmware <-> app compatibility tests
+        working-directory: app
+        env:
+          CI: "true"
+        run: npm run compat
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Tk (firmware_debug.py imports tkinter)
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+      - name: Install test dependencies
+        run: python -m pip install pytest numpy matplotlib bleak
+      - name: Tool tests (tools/ble, tools/trajectory)
+        run: python -m pytest -p no:cacheprovider tools/ble tools/trajectory -q

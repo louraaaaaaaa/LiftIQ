@@ -3,7 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node dev-server.mjs",
-    "test": "node --test"
+    "start": "node dev-server.mjs dev 8000",
+    "start:stable": "node dev-server.mjs stable 8001",
+    "test": "node --test \"dev/test/*.test.js\"",
+    "test:stable": "node --test \"stable/test/*.test.js\"",
+    "compat": "node --test \"../tests/compat/*.test.js\"",
+    "test:all": "npm run test && npm run test:stable && npm run compat && npm run test:tools",
+    "test:tools": "python -m pytest -p no:cacheprovider ../tools/ble ../tools/trajectory -q",
+    "release": "node ../tools/release-app.mjs"
   }
 }

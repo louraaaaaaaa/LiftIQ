@@ -1,10 +1,15 @@
-name: Deploy LiftIQ app to GitHub Pages
+name: Deploy LiftIQ stable app to GitHub Pages
 
+# Publishes ONLY app/stable (the released app). app/dev is never deployed.
+# Stable changes happen exclusively through `node tools/release-app.mjs` (see app/README.md).
 on:
   push:
     branches:
       - main
       - master
+    paths:
+      - "app/stable/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -24,12 +29,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Refuse to publish a dev build
+        run: |
+          if [ -f app/stable/channel.js ] && ! grep -q 'CHANNEL = "stable"' app/stable/channel.js; then
+            echo "app/stable/channel.js is not a stable build"; exit 1
+          fi
+          if grep -qiE "liftiq-dev|LiftIQ Dev" app/stable/sw.js app/stable/manifest.webmanifest app/stable/index.html; then
+            echo "dev branding found in app/stable"; exit 1
+          fi
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Upload app as Pages artifact
+      - name: Upload app/stable as Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: app
+          path: app/stable
 
   deploy:
     environment:

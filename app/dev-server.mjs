@@ -3,8 +3,19 @@ import { readFile } from "node:fs/promises";
 import { dirname, extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = dirname(fileURLToPath(import.meta.url));
-const port = Number(process.env.PORT || 8000);
+// Usage: node dev-server.mjs [rootDir] [port]
+//   rootDir  directory to serve, relative to this file's folder (default: dev)
+//   port     default 8000 (or $PORT)
+// Serves on 127.0.0.1 only. app/dev -> http://localhost:8000, app/stable -> http://localhost:8001
+// (see package.json). Different ports are different browser origins, so the two apps never
+// share service workers, caches or IndexedDB.
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(here, process.argv[2] || "dev");
+const port = Number(process.argv[3] || process.env.PORT || 8000);
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  console.error(`Invalid port: ${process.argv[3]}`);
+  process.exit(2);
+}
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -61,5 +72,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`LiftIQ app available at http://localhost:${port}`);
+  console.log(`LiftIQ app (${relative(here, root) || "."}) available at http://localhost:${port}`);
 });

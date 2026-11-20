@@ -10,5 +10,5 @@ They are not the current firmware:
 - `legacy-tuner.html` — early phone BLE tuner UI; it uses an obsolete
   telemetry packet format and is not compatible with current firmware.
 
-Use [`../current/LiftIQ_BLE/LiftIQ_BLE.ino`](../current/LiftIQ_BLE/LiftIQ_BLE.ino)
+Use [`../LiftIQ_BLE/LiftIQ_BLE.ino`](../LiftIQ_BLE/LiftIQ_BLE.ino)
 for the latest BLE rep-tracking firmware.
