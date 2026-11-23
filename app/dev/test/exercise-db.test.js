@@ -13,6 +13,7 @@ import {
   EQUIPMENT_CLASS, SEED_DATASET_MAP, classifyEquipment, buildLibrary, filterExercises, paginate, facets, leanExercise, datasetExercise, expandRecord, pictogramFor, PAGE_SIZE,
 } from "../exercise-db.js";
 import { SEED_EXERCISES, customExercise } from "../exercises.js";
+import { CHANNEL } from "../channel.js";
 import { WorkoutMachine } from "../workout.js";
 import { MemoryWorkoutStorage } from "../workout-storage.js";
 import { setLabel } from "../set-format.js";
@@ -21,7 +22,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, "../../..");
 const fixtureDir = path.join(root, "tests/fixtures/exercise-db");
 const sample = JSON.parse(fs.readFileSync(path.join(fixtureDir, "exercises.sample.json"), "utf8"));
-const dbDir = path.join(root, "app/dev/assets/exercise-db");
+const appDir = path.resolve(here, ".."); // app/dev or, in a released copy, app/stable
+const dbDir = path.join(appDir, "assets/exercise-db");
 const index = JSON.parse(fs.readFileSync(path.join(dbDir, "exercises.min.json"), "utf8"));
 const meta = JSON.parse(fs.readFileSync(path.join(dbDir, "meta.json"), "utf8"));
 const SHA = "7455efae41b330c265e7cd4b78dfa848e7ce5ebd";
@@ -83,13 +85,13 @@ test("media URLs: jsDelivr first, raw.githubusercontent fallback, pinned to the 
 });
 
 test("switch OFF: no media URLs and no markup (so no network request can happen)", () => {
-  assert.equal(EXERCISE_MEDIA_ENABLED_DEFAULT, true);
+  assert.equal(EXERCISE_MEDIA_ENABLED_DEFAULT, CHANNEL === "dev", "dev keeps the media on by default; the release tool ships it off");
   assert.deepEqual(mediaUrls(SHA, "image", "a.jpg", { enabled: false }), []);
   assert.equal(datasetMediaHtml({ sha: SHA, kind: "image", file: "a.jpg", enabled: false }), "");
   assert.equal(datasetMediaHtml({ sha: SHA, kind: "gif", file: "a.gif", enabled: false }), "");
   const store = new Map();
   const fake = { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) };
-  assert.equal(isMediaEnabled(fake), true, "default");
+  assert.equal(isMediaEnabled(fake), EXERCISE_MEDIA_ENABLED_DEFAULT, "default");
   setMediaEnabled(false, fake);
   assert.equal(store.get(EXERCISE_MEDIA_KEY), "0");
   assert.equal(isMediaEnabled(fake), false);
@@ -272,7 +274,7 @@ test("service worker: media runtime cache only for the dataset hosts, app shell 
 });
 
 test("no dataset media is stored in the repository", () => {
-  const stack = [path.join(root, "app/dev/assets"), path.join(root, "tests/fixtures")];
+  const stack = [path.join(appDir, "assets"), path.join(root, "tests/fixtures")];
   const found = [];
   while (stack.length) {
     const dir = stack.pop();
@@ -288,6 +290,7 @@ test("no dataset media is stored in the repository", () => {
 test("service worker behaviour (simulated): media is cached stale-while-revalidate, capped at 200, offline falls back to cache or an error, app files untouched", async () => {
   const vm = await import("node:vm");
   const code = fs.readFileSync(path.join(here, "../sw.js"), "utf8");
+  const mediaCache = `${/const CACHE_PREFIX = "([^"]+)"/.exec(code)[1]}media-v1`; // liftiq-dev-... on dev, liftiq-app-... in a released copy
   const stores = new Map();
   const mkCache = (name) => {
     const m = stores.get(name) ?? new Map();
@@ -314,15 +317,15 @@ test("service worker behaviour (simulated): media is cached stale-while-revalida
   };
   const media = (n) => `https://cdn.jsdelivr.net/gh/hasaneyldrm/exercises-dataset@${SHA}/images/${n}.jpg`;
   assert.equal((await run(media("a"))).ok, true);
-  assert.equal(stores.get("liftiq-dev-media-v1").size, 1, "cached in its own cache");
+  assert.equal(stores.get(mediaCache).size, 1, "cached in its own cache");
   online = false;
   assert.equal((await run(media("a"))).ok, true, "offline: served from cache");
   assert.equal((await run(media("never-seen"))).isError, true, "offline and uncached: network error, handled by the page fallback");
   online = true;
   assert.equal((await run(media("opaque-1"))).type, "opaque");
-  assert.equal(stores.get("liftiq-dev-media-v1").size, 2, "opaque responses are cached");
+  assert.equal(stores.get(mediaCache).size, 2, "opaque responses are cached");
   for (let i = 0; i < 230; i++) await run(media(`f${i}`));
-  assert.equal(stores.get("liftiq-dev-media-v1").size, 200, "capped");
+  assert.equal(stores.get(mediaCache).size, 200, "capped");
   fetched.length = 0;
   assert.equal(await run("https://example.com/x.jpg"), undefined, "other hosts are not intercepted");
   assert.equal(await run(`https://cdn.jsdelivr.net/gh/other/repo@${SHA}/images/a.jpg`), undefined, "other repos are not intercepted");

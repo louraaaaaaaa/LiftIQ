@@ -2,7 +2,7 @@
 // sketch, the stable app and the dev app. Also pins the live-telemetry configuration that the
 // RAW/Lab features must never alter ("dormant unless invoked", docs/PROTOCOL.md).
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 import * as stable from "../../app/stable/protocol.js";
@@ -11,7 +11,12 @@ import { INO_PATH, PROTOCOL_HEADER_PATH, REPO } from "./helpers.js";
 
 const ino = readFileSync(INO_PATH, "utf8");
 const header = readFileSync(PROTOCOL_HEADER_PATH, "utf8");
-const stableSource = readFileSync(resolve(REPO, "app/stable/protocol.js"), "utf8");
+// Stable 1.0.0 had the protocol code in protocol.js; from 1.1.0 on it is a thin re-export of the vendored sensor
+// package, so the constants are read from both files.
+const stableVendored = resolve(REPO, "app/stable/vendor/liftiq-sensor/protocol.js");
+const stableSource = readFileSync(resolve(REPO, "app/stable/protocol.js"), "utf8")
+  + (existsSync(stableVendored) ? `
+${readFileSync(stableVendored, "utf8")}` : "");
 
 function define(name) {
   const match = ino.match(new RegExp(`#define\\s+${name}\\s+"([^"]+)"`));

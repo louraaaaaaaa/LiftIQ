@@ -8,7 +8,8 @@
 //   1. run the dev unit tests and tests/compat (protocol gates) - must be green
 //   2. refuse to run if app/stable has uncommitted changes (or the git repo is unavailable)
 //   3. build the stable app from app/dev: copy, drop dev-only files, strip the DEV badge/branding,
-//      rewrite channel.js (CHANNEL "stable", APP_VERSION = --version), manifest, title, theme colour
+//      rewrite channel.js (CHANNEL "stable", APP_VERSION = --version), manifest, title, theme colour, and set
+//      EXERCISE_MEDIA_ENABLED_DEFAULT = false (dataset exercise media off by default in the release)
 //   4. write app/stable/VERSION and bump the stable service-worker cache name (liftiq-app-vN+1)
 //   5. run the stable unit tests on the result and print the next steps (review diff, commit, push)
 //
@@ -23,7 +24,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { findDevBranding } from "./release-checks.mjs";
+import { findDevBranding, findMediaDefaultProblems } from "./release-checks.mjs";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DEV = join(REPO, "app", "dev");
@@ -128,6 +129,11 @@ function transformChannel(text, version) {
   return out;
 }
 
+// The dataset exercise media ships OFF in the released app (licence clarification pending); the Settings switch stays.
+function transformExerciseMedia(text) {
+  return replaceOnce(text, "export const EXERCISE_MEDIA_ENABLED_DEFAULT = true;", "export const EXERCISE_MEDIA_ENABLED_DEFAULT = false;", "EXERCISE_MEDIA_ENABLED_DEFAULT = true");
+}
+
 function currentCacheVersion() {
   const swPath = join(STABLE, "sw.js");
   const match = existsSync(swPath) && readFileSync(swPath, "utf8").match(/const CACHE_NAME = "liftiq-app-v(\d+)";/);
@@ -155,6 +161,7 @@ function buildStable(version, cacheVersion, targetDir) {
     if (file === "index.html") writeFileSync(to, transformIndexHtml(readFileSync(from, "utf8")));
     else if (file === "manifest.webmanifest") writeFileSync(to, transformManifest(readFileSync(from, "utf8")));
     else if (file === "sw.js") writeFileSync(to, transformServiceWorker(readFileSync(from, "utf8"), cacheVersion));
+    else if (file === "exercise-media.js") writeFileSync(to, transformExerciseMedia(readFileSync(from, "utf8")));
     else if (file === "channel.js") writeFileSync(to, transformChannel(readFileSync(from, "utf8"), version));
     else cpSync(from, to);
   }
@@ -168,6 +175,7 @@ function verifyBuild(dir, version) {
   for (const file of listFiles(dir).filter((f) => /\.(html|js|webmanifest|svg|css)$/.test(f) && !f.startsWith("test/"))) {
     problems.push(...findDevBranding(file, read(file))); // patterns and the allow-list live in tools/release-checks.mjs
   }
+  problems.push(...findMediaDefaultProblems(read("exercise-media.js")));
   if (!/export const CHANNEL = "stable";/.test(read("channel.js"))) problems.push("channel.js is not CHANNEL stable");
   if (!read("channel.js").includes(`"${version}"`)) problems.push("channel.js version mismatch");
   if (JSON.parse(read("manifest.webmanifest")).name !== STABLE_BRAND.manifestName) problems.push("manifest name not stable");

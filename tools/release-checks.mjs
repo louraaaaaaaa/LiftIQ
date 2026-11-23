@@ -20,3 +20,15 @@ export function findDevBranding(file, text) {
   }
   return problems;
 }
+
+// The released (stable) build must ship with the dataset exercise media OFF by default (licence clarification pending,
+// docs/EXERCISE_DATA.md). The release tool rewrites the constant; this check refuses a build where it is not `false`.
+// The Settings switch itself stays in the build so the owner can turn the previews on.
+export const MEDIA_DEFAULT_PATTERN = /export const EXERCISE_MEDIA_ENABLED_DEFAULT = (true|false);/;
+
+export function findMediaDefaultProblems(text) {
+  const match = MEDIA_DEFAULT_PATTERN.exec(text);
+  if (!match) return ["exercise-media.js has no `export const EXERCISE_MEDIA_ENABLED_DEFAULT = true|false;` line"];
+  if (match[1] !== "false") return ["exercise-media.js still has EXERCISE_MEDIA_ENABLED_DEFAULT = true (the release must ship the dataset media off)"];
+  return [];
+}

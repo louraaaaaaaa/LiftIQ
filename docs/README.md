@@ -35,6 +35,7 @@ Every document under `docs/` starts with a `Status:` header. Run `node tools/che
 | [`REP_ANALYSIS.md`](REP_ANALYSIS.md) | current | Spec of the pulse/rep analysis (offline and live); code in `packages/liftiq-sensor` |
 | [`OPENGYM_INTEGRATION_DESIGN.md`](OPENGYM_INTEGRATION_DESIGN.md) | current | Study and design of the sensor inside the openGym fork; milestones P0-P6, owner decisions |
 | [`experiments/STEP0_PROTOCOL.md`](experiments/STEP0_PROTOCOL.md) | current | Physical experiment protocol for raw captures (IMU decision gate, experiments A-E) |
+| [`RELEASE_1_1_0.md`](RELEASE_1_1_0.md) | current | what stable 1.1.0 contains, owner steps (release, commit, push, checks, rollback), risks |
 | [`UX_TRAIN_FLOW.md`](UX_TRAIN_FLOW.md) | reference | UX contract of the dev app's Train flow; superseded by the openGym UI, kept for the logic it exercises |
 | [`EXERCISE_DATA.md`](EXERCISE_DATA.md) | reference | Open exercise dataset, runtime media links, media-licence status (clarification pending) |
 | [`IMAGE_CREDITS.md`](IMAGE_CREDITS.md) | reference | Credits of the default machine photos in the dev app |
