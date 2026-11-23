@@ -1,5 +1,11 @@
 # LiftIQ phone app
 
+Status: current (the Train-flow parts are a reference implementation, see below)
+Last reviewed: 2026-11-23
+Purpose: how to run, test and release the stable and dev apps, and how the dev app is laid out. The dev app's Train flow, exercise picker, photos and
+history (W2, W2b, W2c, W2d) are a **reference implementation, superseded by the openGym integration** ([`docs/OPENGYM_INTEGRATION_DESIGN.md`](../docs/OPENGYM_INTEGRATION_DESIGN.md));
+they are kept for the analysis, BLE, session and protocol logic they exercise.
+
 A dependency-free, installable strength-training log for the LiftIQ BLE
 firmware (Web Bluetooth PWA, plain ES modules, no build step). Sessions and CSV
 files stay in IndexedDB on this device.
@@ -78,10 +84,14 @@ Rollback before committing: `git checkout -- app/stable && git clean -fd app/sta
 make sure `npm run test:all` is green and, if the firmware changed, the firmware is compatible
 (`docs/PROTOCOL.md`).
 
-## Using the app
+## Using the app (stable app, 1.0.0)
 
-The bottom navigation has four sections: **Workout**, **History**, **Lab** and
-**Sensor**. The header always shows the connection state and the sensor battery.
+This section describes the **stable** app and its simple flow with the firmware's five-second calibration. The dev app replaces
+**Workout** by the Train flow, which uses a 1.5 s ready check instead of the calibration (see "Dev app only" below); its
+Lab page (raw capture) is under Sensor > Developer tools.
+
+The stable bottom navigation has three sections: **Workout**, **History** and **Sensor**. The header always shows the
+connection state and the sensor battery.
 
 1. **Sensor → Connect sensor.** Approve Android's permission/pairing prompt if
    asked. Saved rep thresholds are sent to the sensor on connect.
@@ -106,7 +116,7 @@ The bottom navigation has four sections: **Workout**, **History**, **Lab** and
 
 ### Lab (raw capture, research)
 
-For the offline trajectory experiments (`docs/DEVELOPMENT.md`, Step 0). Needs firmware with the
+For the offline trajectory experiments (Step 0: [`docs/history/DEVELOPMENT_HISTORY.md`](../docs/history/DEVELOPMENT_HISTORY.md), [`docs/experiments/STEP0_PROTOCOL.md`](../docs/experiments/STEP0_PROTOCOL.md)). Dev app only. Needs firmware with the
 research-capture feature; otherwise the page says it is unavailable. Fill in exercise, load (kg),
 known range of motion (cm) and notes, then:
 
@@ -125,7 +135,7 @@ While the capture is uploading, live rep telemetry is paused.
 
 Three states are distinguished: waiting for the first packet; **No battery**
 when the sensor reports 0 mV (running from USB, or battery sense not wired - the
-D3->D1 jumper, see `hardware/BOM.md`); and a valid reading. The percentage is a linear
+D3->D2 jumper, see `hardware/BOM.md`); and a valid reading. The percentage is a linear
 3.3–4.2 V estimate, not a fuel-gauge measurement. The Debug panel shows the raw
 cell-voltage field.
 
@@ -150,9 +160,35 @@ the pause gap. Exports are collected in `data/recordings/app-sessions/`.
 Set history is local to the browser. The app asks the browser to protect its
 storage from cleanup but that is not a backup; use **↓ CSV** to keep a copy.
 
+## Dev app only: the Train flow (W2) - reference implementation
+
+> Superseded by the openGym integration (the fork brings its own exercise picker, history and workout UI). Kept as a working reference for the
+> ready check, session machine, pulse analysis, set review and CSV formats, which are reused by the sensor package.
+
+`app/dev` replaces the old Workout page with a guided workout flow (not in `stable` yet). Run it with `npm start` (http://localhost:8000, Chrome on Android or desktop for Bluetooth). The bottom navigation is **Train | History | Sensor**; the Lab (raw capture) and the debug panel are under Sensor > Developer tools (switch, default off). The full interaction contract is `docs/UX_TRAIN_FLOW.md`.
+
+Flow (state machine in `workout.js`, drives the unchanged `SessionMachine` for calibration/recording/disconnects):
+
+1. **Choose a machine.** Type your own machine name at the top (saved as a custom machine), or search/filter the exercise library: chips **Stack machines** (default) and **All**, filters for body part, target muscle and equipment, recent exercises first, pages of 40 with infinite scroll. The library is the open dataset hasaneyldrm/exercises-dataset (1,324 exercises, English) plus the 10 seeded machines; thumbnails and the movement GIF are loaded from the internet at runtime with the "© Gym visual" attribution and can be switched off under Sensor > Training settings > Online exercise previews (see `docs/EXERCISE_DATA.md` for the licence status). **Quick set (no machine)** is at the bottom. You can add your own photo of any machine.
+2. **Set up.** Weight in kg is optional: prefilled from the last set of that exercise, change with the −/+ stepper (step in Sensor → Training settings, default 5 kg) or the field, or tap **Weight unknown**. The machine name can be edited for the current exercise. The **ready check** (live stillness ring) replaces the firmware calibration: Start set records once the machine has been still for 1.5 s (pressing early arms it). Back and Change machine are always available before the set.
+3. **During the set.** Big live rep estimate (causal pulse counter; it counts the setup pull too), elapsed time, large **STOP SET**.
+4. **Review.** Offline pulse analysis (`analysis/pulses.js`, spec `docs/REP_ANALYSIS.md`): rep count with the setup pull excluded by default, a **Include setup pull** switch, velocity chart with numbered pulses (S = setup pull), per-rep bars (peak velocity, up-stroke cm estimate, time to next), mean peak velocity, velocity loss, rep period. The weight can be set or corrected here. **Yes, N reps** confirms, **Edit count** changes it (stored as `user-edited`), **Discard set** drops it.
+5. **Rest.** Timestamp-based countdown (default 90 s, Sensor → Training settings), −15/+15 s, Skip; at zero the phone vibrates, beeps (after a first tap) and flashes. Then **Next set** (weight prefilled from the previous set) or **Finish exercise**.
+6. **Summary** table per exercise (set, kg, reps, mean peak velocity, velocity loss, rep period), **Add another exercise** or **Finish workout**. `buildExerciseReportData(block, sets, samples)` in `workout.js` is the hook for the W3 report.
+
+Recovery: the active workout (exercise, weight, saved sets, rest timer, and an unsaved review with its samples) is stored in IndexedDB; after a reload the Train page offers **Resume**. A set that is still recording when the page reloads is lost (samples live in memory); a BLE drop mid-set goes to review with the captured samples.
+
+Data model (IndexedDB `liftiq-local`, version 4 (v4 adds the `photos` store); `sessions` and `rawSessions` untouched; the migration is additive, see `storesToCreate` in `workout-storage.js`): `exercises` (custom), `workouts` `{id, startedAt, endedAt, blocks:[{id, exerciseId, exerciseName, startedAt, endedAt, setIds}]}`, `sets` (weightKg may be null, repsDetectedWithSetup, repsDetectedExcludingSetup, setupPullFlagged, setupPullIncluded, repsConfirmed, repsSource `sensor-confirmed|user-edited`, metrics, pulses, restS, sampleCount, droppedPackets, sensorName, firmwareVersion, appVersion, note), `setSamples` `{setId, samples}`, `meta` (active workout). Storage is behind an interface with `MemoryWorkoutStorage` (tests) and `IdbWorkoutStorage`. Rest time and weight step live in `localStorage` (`liftiq-train-settings`).
+
+History groups workouts by date, then exercise blocks, then sets labelled like `Seated cable row · Set 2 · 45 kg · 8 reps · 22 Nov 2026 14:05` (weight omitted when unknown); opening a set shows its chart and metrics again, with CSV download and delete. Old sets from the previous app are under **Older sets**.
+
+Per-set CSV (`liftiq-set v1`): file name `liftiq_<YYYY-MM-DD>_<exercise-slug>_set<N>.csv` (a second workout the same day gets `_2`, `_3`, ...); `# key: value` header lines (format, exercise, weight_kg, set_number, reps_detected_with_setup, reps_detected_excluding_setup, setup_pull_flagged, setup_pull_included, reps_confirmed, reps_source, firmware_version, app_version, sensor_name, captured_at, note), then the usual columns (`actual_rep_count` = confirmed reps) plus `vert_accel_m_s2` and `vert_velocity_m_s`. `tools/livesets/analyze_live_sets.py` reads both formats.
+
 ## Code layout
 
 All paths below are inside `dev/` and `stable/` (stable is a released copy of dev).
+
+**Dev only:** `protocol.js`, `raw-protocol.js`, `packet-stats.js`, `session.js`, `ble.js`, `ready-check.js` and `analysis/*.js` in `dev/` are one-line re-exports of `dev/vendor/liftiq-sensor/`, a generated copy of `packages/liftiq-sensor/` (the source of truth). Do not edit the vendored folder: change the package and run `npm run vendor` (`npm run vendor:check` verifies it). The rows below describe what each module does.
 
 | File | Role |
 |---|---|
@@ -162,12 +198,20 @@ All paths below are inside `dev/` and `stable/` (stable is a released copy of de
 | `session.js` | Capture state machine (no DOM, no Bluetooth; unit tested) |
 | `raw-protocol.js` | Lab chunk parsing, reassembly, stream/header decoding, Raw CSV v1 (pure, unit tested) |
 | `raw-session.js` | Lab state machine (arm/start/stop/download/resend/save; unit tested) |
-| `ble.js` | Web Bluetooth client (RAW and INFO characteristics optional) |
+| `ble.js` | BLE client over a transport interface, default Web Bluetooth (RAW and INFO characteristics optional) |
 | `storage.js` | IndexedDB wrapper |
 | `chart.js` | Canvas signal chart |
 | `wakelock.js` | Screen Wake Lock |
 | `ui.js` | DOM rendering |
 | `app.js` | Wiring |
+| `workout.js` | (dev) Workout flow state machine + `buildExerciseReportData` (no DOM/BLE; unit tested) |
+| `workout-storage.js` | (dev) Storage interface, in-memory and IndexedDB implementations, DB v3 migration plan |
+| `exercises.js` | (dev) Seed exercise library, pictograms, custom exercises, slugs |
+| `exercise-db.js`, `exercise-media.js` | (dev) Open exercise dataset library (1,324 exercises, `assets/exercise-db/`), picker filters/pagination, equipment support classification, runtime media URLs + attribution renderer; see `docs/EXERCISE_DATA.md` |
+| `set-format.js` | (dev) Readable set labels, CSV file names, per-set CSV |
+| `analysis/pulses.js`, `analysis/live-counter.js` | (dev) Shims over the vendored offline pulse analysis and causal live counter (`docs/REP_ANALYSIS.md`) |
+| `ready-check.js`, `photos.js`, `dev-tools.js` | (dev) Stillness detector, machine photo downscale/storage, developer-tools flag |
+| `pulse-chart.js`, `train-view.js`, `rest-alert.js` | (dev) Review chart (SVG), Train/History DOM rendering, rest beep/vibration |
 | `sw.js` | Offline cache (`APP_FILES`, `CACHE_PREFIX`, `CACHE_NAME`) |
 
 ## Development
@@ -176,10 +220,14 @@ All paths below are inside `dev/` and `stable/` (stable is a released copy of de
 npm test               # dev unit tests            (app/dev/test)
 npm run test:stable    # stable unit tests         (app/stable/test)
 npm run compat         # firmware <-> app compatibility gates (tests/compat)
-npm run test:tools     # python tests of tools/ble and tools/trajectory
-npm run test:all       # everything above
+npm run test:tools     # python tests of tools/ble, tools/trajectory and tools/livesets
+npm run test:sensor    # shared sensor package tests (packages/liftiq-sensor/test)
+npm run vendor         # copy packages/liftiq-sensor/src into dev/vendor/liftiq-sensor
+npm run vendor:check   # fail if the vendored copy differs from the package
+npm run check:links    # Markdown link check (tools/check-links.mjs)
+npm run test:all       # everything above (vendor:check + link check + all test suites)
 ```
 
 Unit tests run `node --test`: packet decoding, CSV, raw-capture reassembly/CSV and the Lab state machine, the session
 state machine (with a fake BLE client and clock), the packet tracker, and the older-firmware connection fallbacks. They need no
-packages or sensor. See `docs/DEVELOPMENT.md` (Rules) and `docs/ARCHITECTURE.md`.
+packages or sensor. See [`docs/DEVELOPMENT.md`](../docs/DEVELOPMENT.md) (Rules) and [`docs/ARCHITECTURE.md`](../docs/ARCHITECTURE.md).

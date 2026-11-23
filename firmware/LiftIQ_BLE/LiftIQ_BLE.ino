@@ -3,7 +3,7 @@
 // Library: DFRobot_BMI160 (used for sensor init only; data is read directly over Wire)
 // Wiring:  SDA = GPIO 6 (D4), SCL = GPIO 7 (D5), BMI160 at I2C 0x68.
 //          Battery divider midpoint is on the D3 pad (GPIO5 = ADC2, which the ESP32-C3
-//          cannot read) and is jumpered to D1 = GPIO 3 (ADC1_CH3), which is read here.
+//          cannot read) and is jumpered to D2 = GPIO 4 (ADC1_CH4), which is read here.
 
 // Set to 1 to enable the human-readable serial stream (100 Hz plotter CSV,
 // 1 Hz battery line, phase/rep banners). Required by the tools/ serial
@@ -36,7 +36,7 @@ enum LiftPhase { IDLE = 0, CONCENTRIC = 1, ECCENTRIC = 2 };
 // --- HARDWARE CONFIGURATION ---
 const int PIN_SDA = 6;
 const int PIN_SCL = 7;
-const int PIN_BATTERY = 4;  // D1 / GPIO3 / ADC1_CH3, jumpered from the D3 divider midpoint
+const int PIN_BATTERY = 4;  // D2 / GPIO4 / ADC1_CH4, jumpered from the D3 divider midpoint
 const uint8_t BATTERY_ADC_SAMPLES = 16;
 const int8_t BMI160_I2C = 0x68;
 const float BATTERY_DIVIDER_RATIO = 2.0f;
@@ -974,10 +974,10 @@ void setup() {
   (void)analogRead(PIN_BATTERY);
   analogSetPinAttenuation(PIN_BATTERY, ADC_11db);
   batteryVoltageMillivolts = readBatteryMillivolts(batteryDividerMillivolts);
-  Serial.printf("[BATTERY] boot: pin D1/GPIO3=%u mV, estimated cell=%u mV\n",
+  Serial.printf("[BATTERY] boot: pin D2/GPIO4=%u mV, estimated cell=%u mV\n",
                 (unsigned)batteryDividerMillivolts, (unsigned)batteryVoltageMillivolts);
   if (batteryDividerMillivolts == 0) {
-    Serial.println("[BATTERY] WARNING: 0 mV on D1/GPIO3 - D3->D1 jumper missing, no LiPo attached, or USB only.");
+    Serial.println("[BATTERY] WARNING: 0 mV on D2/GPIO4 - D3->D2 jumper missing, no LiPo attached, or USB only.");
   }
   lastBatteryReadTime = millis();
 
@@ -1140,7 +1140,7 @@ void loop() {
 #endif
     lastBatteryReadTime = currentTime;
     if (batteryDividerMillivolts == 0 && currentTime - lastBatteryZeroWarnTime >= 10000) {
-      Serial.println("[BATTERY] WARNING: D1/GPIO3 reads 0 mV (jumper D3->D1 missing / no LiPo / USB only?).");
+      Serial.println("[BATTERY] WARNING: D2/GPIO4 reads 0 mV (jumper D3->D2 missing / no LiPo / USB only?).");
       lastBatteryZeroWarnTime = currentTime;
     }
   }

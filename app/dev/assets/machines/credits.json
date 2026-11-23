@@ -1,0 +1,102 @@
+{
+  "seated-cable-row": {
+    "file": "cable-station.jpg",
+    "title": "File:Multifunctional cable and row machines in a gym.jpg",
+    "author": "San Francisco Foghorn (via Flickr)",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Generic photo of a Life Fitness cable-stack station with a seated row bench, no people. Not specific to this exercise; replace with a dedicated photo when available. Flickr licence review passed on Commons (FlickreviewR).",
+    "dateTaken": "2020-05-10 (Commons upload)",
+    "generic": true,
+    "label": "Example photo — cable station"
+  },
+  "lat-pulldown": {
+    "file": "lat-pulldown.jpg",
+    "title": "File:Diverging Lat Pulldown Machine.jpg",
+    "author": "Teddyhtsai",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Diverging_Lat_Pulldown_Machine.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Diverging_Lat_Pulldown_Machine.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Selectorized weight-stack lat pulldown, three-quarter view, nobody on it. CC0: attribution not required but given. Alternative (CC BY-SA 4.0, white cable-tower pulldown, Santeri Viinamaki): File:Lat pulldown machine 20180112.jpg.",
+    "dateTaken": "2024-10-17 (Commons upload)"
+  },
+  "machine-chest-press": {
+    "file": null,
+    "reason": "No suitable photo found: Commons results are plate-loaded/Smith machines or show people."
+  },
+  "machine-shoulder-press": {
+    "file": null,
+    "reason": "Only plate-loaded shoulder presses or photos with people found (e.g. File:Shoulder Press.jpg is plate-loaded)."
+  },
+  "machine-leg-press": {
+    "file": null,
+    "reason": "All openly licensed leg press photos found are plate-loaded sleds, not weight-stack, or show people."
+  },
+  "leg-extension": {
+    "file": "leg-extension.jpg",
+    "title": "File:Leg Extension.jpg",
+    "author": "Aliva Sahoo",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Leg_Extension.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Leg_Extension.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Weight-stack leg extension / leg curl combo machine (GOFIT brand printed on the machine itself, not an overlay), nobody on it.",
+    "dateTaken": "2025-12-15 (Commons upload)"
+  },
+  "leg-curl": {
+    "file": null,
+    "reason": "No clear weight-stack leg curl photo without people found; File:Leg Extension.jpg is a combo machine shown in extension setup, so it is used only for leg-extension."
+  },
+  "triceps-pushdown": {
+    "file": "cable-station.jpg",
+    "title": "File:Multifunctional cable and row machines in a gym.jpg",
+    "author": "San Francisco Foghorn (via Flickr)",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Generic photo of a Life Fitness cable-stack station with a seated row bench, no people. Not specific to this exercise; replace with a dedicated photo when available. Flickr licence review passed on Commons (FlickreviewR).",
+    "dateTaken": "2020-05-10 (Commons upload)",
+    "generic": true,
+    "label": "Example photo — cable station"
+  },
+  "cable-biceps-curl": {
+    "file": "cable-station.jpg",
+    "title": "File:Multifunctional cable and row machines in a gym.jpg",
+    "author": "San Francisco Foghorn (via Flickr)",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Multifunctional_cable_and_row_machines_in_a_gym.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Generic photo of a Life Fitness cable-stack station with a seated row bench, no people. Not specific to this exercise; replace with a dedicated photo when available. Flickr licence review passed on Commons (FlickreviewR).",
+    "dateTaken": "2020-05-10 (Commons upload)",
+    "generic": true,
+    "label": "Example photo — cable station"
+  },
+  "cable-fly": {
+    "file": "cable-fly.jpg",
+    "title": "File:Pec deck Fly.jpg",
+    "author": "Aliva Sahoo",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pec_deck_Fly.jpg",
+    "originalUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Pec_deck_Fly.jpg",
+    "changes": "Resized to 800 px (longest side) and converted to JPEG, quality 80; EXIF removed. Derived from a Wikimedia-generated rendition of the original file.",
+    "retrievedAt": "2026-11-22",
+    "notes": "Weight-stack pec deck fly machine, front view, nobody on it. The seed exercise with this id is now called \"Pec deck (machine fly)\" (id kept stable so saved sets stay linked).",
+    "dateTaken": "2025-12-15 (Commons upload)"
+  }
+}

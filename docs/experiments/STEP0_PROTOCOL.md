@@ -1,5 +1,9 @@
 # Step 0 - physical experiment protocol
 
+Status: current
+Last reviewed: 2026-11-23
+Purpose: physical experiment protocol for the Step 0 raw captures (the IMU decision gate).
+
 Goal: collect raw 6-axis captures to measure how well per-rep vertical ROM (and a 3D path) can be reconstructed with the
 current BMI160, compared with a tape-measured ROM. Decision gate: ~2 cm per-rep ROM error means software is enough.
 Analysis: `tools/trajectory/analyze_raw.py` (see `tools/trajectory/README.md`). This is a measurement exercise, not

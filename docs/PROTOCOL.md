@@ -1,5 +1,9 @@
 # LiftIQ BLE protocol (v1 - FROZEN)
 
+Status: current
+Last reviewed: 2026-11-23
+Purpose: the frozen BLE protocol v1 contract between firmware and apps, the behavioural guarantees and the extension rules.
+
 This is the contract between the sensor firmware and the phone app. **Policy (architect decision):
 any firmware version must keep working with the latest STABLE app and with older stable releases.**
 The executable form of this document is `tests/compat/` (golden vectors, host-compiled firmware
@@ -107,7 +111,7 @@ succeed (tested in `app/dev/test/compat-ble.test.js`). Encoder: `encodeInfoV1` i
 ## 6. Experimental features (current: RAW capture)
 
 - RAW characteristic `5c0de0a1-7b3e-4f0a-9b6e-2d1c8a52f001` and opcodes `0x10`-`0x15` (arm, start, stop,
-  download, resend, erase). Chunk/stream formats are documented in `docs/DEVELOPMENT.md` (Step 0) and
+  download, resend, erase). Chunk/stream formats are documented in `docs/history/DEVELOPMENT_HISTORY.md` (Step 0, "Research-capture protocol as implemented") and
   may still change; only the dev app uses them.
 - **Dormant rule:** with no RAW command received, the firmware's live behaviour must be identical to a
   firmware without RAW: same telemetry bytes, 50 Hz cadence, accelerometer at 100 Hz / +/-8 g (ACC_CONF

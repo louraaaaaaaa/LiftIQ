@@ -1,0 +1,26 @@
+{
+  "name": "@liftiq/sensor",
+  "version": "0.1.0",
+  "description": "LiftIQ sensor core: BLE protocol decoder, session state machine, ready check and pulse (rep) analysis. Framework-free, DOM-free, dependency-free ES modules.",
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "sideEffects": false,
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./protocol": "./src/protocol.js",
+    "./raw-protocol": "./src/raw-protocol.js",
+    "./packet-stats": "./src/packet-stats.js",
+    "./session": "./src/session.js",
+    "./ready-check": "./src/ready-check.js",
+    "./analysis/pulses": "./src/analysis/pulses.js",
+    "./analysis/live-counter": "./src/analysis/live-counter.js",
+    "./ble-client": "./src/ble-client.js",
+    "./web-bluetooth-transport": "./src/web-bluetooth-transport.js"
+  },
+  "files": ["src", "README.md"],
+  "scripts": {
+    "test": "node --test \"test/*.test.js\""
+  }
+}

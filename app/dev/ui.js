@@ -6,26 +6,24 @@ const IDS = [
   "sensorStatus", "statusText", "batteryChip", "batteryChipFill", "batteryChipText",
   "browserNotice", "errorNotice", "errorText", "dismissErrorButton",
   "workoutPage", "historyPage", "sensorPage", "workoutTab", "historyTab", "sensorTab",
-  "setupPrompt", "setupSensorButton", "stateLabel", "phaseBadge", "repCount",
-  "exerciseInput", "elapsedTime", "sessionMessage",
+  "stateLabel", "phaseBadge", "repCount",
+  "elapsedTime", "sessionMessage",
   "calibrationPanel", "calibrationTitle", "calibrationTime", "calibrationProgress", "calibrationFill",
   "calibrationNote", "calibrationActions", "continueSetButton", "retryCalibrationButton",
-  "startButton", "pauseButton", "stopButton",
+  "stopButton", "calibrationCancelRow", "calibrationCancelButton",
   "totalAccel", "dynamicAccel", "axisX", "axisY", "axisZ", "telemetryChart",
-  "historyCount", "historyList", "storageNote",
+  "historyCount", "historyList", "storageNote", "legacyHistory", "legacyCount", "workoutHistory",
   "sensorName", "connectButton", "connectLabel", "calibrateButton",
   "bluetoothState", "streamState", "calibrationState", "firmwareInfo", "appVersion", "devBadge",
   "batteryLevelFill", "batteryValue", "batteryVoltage",
   "customSensorName", "sensorSettingsForm", "startThreshold", "reversalThreshold", "restThreshold",
   "saveSensorSettings", "settingsMessage",
   "debugPanel", "debugState", "debugCalibration", "debugRate", "debugCounts", "debugBattery", "debugAge", "debugHex",
-  "labTab", "labPage", "labStateLabel", "labIntro", "labExercise", "labLoad", "labRom", "labNotes",
+  "labPage", "devToolsToggle", "creditsList", "devTools", "openLabButton", "labBackButton", "connPanel", "connPanelName", "connPanelDetail", "connPanelButton", "labStateLabel", "labIntro", "labExercise", "labLoad", "labRom", "labNotes",
   "labProgressPanel", "labProgressTitle", "labProgressValue", "labProgressBar", "labProgressFill", "labMessage",
   "labArmButton", "labStartButton", "labStopButton", "labDownloadButton", "labSaveButton", "labEraseButton",
   "labDiscardButton", "rawCount", "rawList",
-  "repReviewDialog", "repReviewQuestion", "detectedRepCount", "confirmRepsButton", "correctRepsButton",
-  "repCorrectionForm", "actualRepCount", "backToRepReviewButton", "repCelebration",
-  "celebratedRepCount", "repSaveMessage", "finishReviewButton",
+  "restSetting", "stepSetting", "trainSettingsForm", "trainSettingsMessage", "exerciseMediaToggle",
 ];
 
 const EXPECTED_CALIBRATION_MS = 5500;
@@ -76,13 +74,16 @@ export class Views {
     const pages = {
       workout: [this.el.workoutPage, this.el.workoutTab],
       history: [this.el.historyPage, this.el.historyTab],
-      lab: [this.el.labPage, this.el.labTab],
+      lab: [this.el.labPage, null],
       sensor: [this.el.sensorPage, this.el.sensorTab],
     };
+    // The Lab is not a tab any more: it lives under Sensor > Developer tools, so Sensor stays highlighted.
+    const selected = name === "lab" ? "sensor" : name;
     for (const [pageName, [page, tab]] of Object.entries(pages)) {
       page.hidden = pageName !== name;
-      tab.classList.toggle("is-selected", pageName === name);
-      if (pageName === name) tab.setAttribute("aria-current", "page");
+      if (!tab) continue;
+      tab.classList.toggle("is-selected", pageName === selected);
+      if (pageName === selected) tab.setAttribute("aria-current", "page");
       else tab.removeAttribute("aria-current");
     }
   }
@@ -97,6 +98,7 @@ export class Views {
 
     document.body.classList.toggle("sensor-connected", snap.connected);
     document.body.dataset.state = snap.state;
+    document.body.classList.toggle("is-recording", snap.state === STATES.RECORDING || snap.state === STATES.PAUSED);
     el.sensorStatus.classList.toggle("is-connected", snap.connected);
     el.statusText.textContent = this.#statusText(snap, sensorName, connectionPending);
     el.stateLabel.textContent = STATE_LABELS[snap.state] || snap.state.toUpperCase();
@@ -110,7 +112,6 @@ export class Views {
       : snap.firmwareStatus === 1 ? "Calibrating…"
       : "Not calibrated";
 
-    el.repCount.textContent = String(snap.repCount);
     if (snap.state === STATES.PAUSED) {
       el.phaseBadge.textContent = "PAUSED";
       el.phaseBadge.classList.remove("phase-active");
@@ -123,26 +124,23 @@ export class Views {
     }
     if (snap.message) el.sessionMessage.textContent = snap.message;
 
-    el.startButton.hidden = inSet;
-    el.pauseButton.hidden = !inSet;
-    el.stopButton.hidden = !inSet;
-    el.startButton.disabled = !snap.canStart || !database;
-    el.pauseButton.textContent = snap.state === STATES.PAUSED ? "Resume" : "Pause";
-    el.pauseButton.disabled = !(snap.canPause || snap.canResume);
-    el.stopButton.textContent = snap.stopLabel;
+    el.stopButton.textContent = snap.stopLabel === "Stop set" ? "STOP SET" : snap.stopLabel;
     el.stopButton.disabled = !snap.canStop;
-    el.exerciseInput.disabled = inSet || snap.state === STATES.REVIEWING || snap.state === STATES.SAVING;
     el.connectButton.disabled = connectionPending;
     el.connectLabel.textContent = connectionPending ? "Connecting…" : snap.connected ? "Disconnect" : "Connect sensor";
+    el.connPanelButton.textContent = connectionPending ? "Connecting…" : snap.connected ? "Disconnect" : "Connect sensor";
+    el.connPanelButton.disabled = connectionPending;
+    el.connPanelName.textContent = snap.connected ? sensorName : "Sensor not connected";
+    el.connPanelDetail.textContent = snap.connected ? " · connected" : " · turn Bluetooth on and press Connect";
     el.connectButton.classList.toggle("is-connected", snap.connected);
     el.calibrateButton.disabled = !snap.canStart;
+    void database;
     const settingsLocked = inSet || snap.state === STATES.REVIEWING || snap.state === STATES.SAVING;
     for (const input of [el.customSensorName, el.startThreshold, el.reversalThreshold, el.restThreshold, el.saveSensorSettings]) {
       input.disabled = settingsLocked;
     }
 
     this.#renderCalibration(snap, previous);
-    this.#renderReview(snap, previous);
     this.showError(snap.error);
     this.updateElapsed();
   }
@@ -160,6 +158,7 @@ export class Views {
     const el = this.el;
     const show = snap.state === STATES.CALIBRATING;
     el.calibrationPanel.hidden = !show;
+    el.calibrationCancelRow.hidden = !(show && !snap.session); // calibrate-only has no STOP SET button
     if (!show) return;
     if (previous !== STATES.CALIBRATING) el.calibrationPanel.focus();
     const needsAction = snap.stalled;
@@ -181,37 +180,6 @@ export class Views {
     this.el.calibrationFill.style.width = `${percent}%`;
     this.el.calibrationProgress.setAttribute("aria-valuenow", String(percent));
     this.el.calibrationTime.textContent = `${Math.min(99, Math.floor(elapsed / 1000))} s`;
-  }
-
-  #renderReview(snap, previous) {
-    const el = this.el;
-    const reviewing = snap.state === STATES.REVIEWING || snap.state === STATES.SAVING;
-    const celebrating = Boolean(snap.lastSaved) && !reviewing;
-    el.repReviewDialog.hidden = !(reviewing || celebrating);
-    if (reviewing) {
-      if (previous !== STATES.REVIEWING && previous !== STATES.SAVING) {
-        el.detectedRepCount.textContent = String(snap.session?.repCount ?? snap.repCount);
-        el.actualRepCount.value = String(snap.session?.repCount ?? snap.repCount);
-        el.repReviewQuestion.hidden = false;
-        el.repCorrectionForm.hidden = true;
-        el.repCelebration.hidden = true;
-        el.repReviewDialog.querySelector('[role="dialog"]')?.focus();
-      }
-      const saving = snap.state === STATES.SAVING;
-      el.confirmRepsButton.disabled = saving;
-      el.correctRepsButton.disabled = saving;
-      el.actualRepCount.disabled = saving;
-    } else if (celebrating && el.repCelebration.hidden) {
-      el.repReviewQuestion.hidden = true;
-      el.repCorrectionForm.hidden = true;
-      el.repCelebration.hidden = false;
-      el.celebratedRepCount.textContent = String(snap.lastSaved.reps);
-      el.repSaveMessage.textContent = "Your set is saved on this device.";
-      el.repCelebration.classList.remove("is-celebrating");
-      void el.repCelebration.offsetWidth;
-      el.repCelebration.classList.add("is-celebrating");
-      el.finishReviewButton.focus();
-    }
   }
 
   updateElapsed(now = Date.now()) {
@@ -396,12 +364,10 @@ export class Views {
   // ---- history ---------------------------------------------------------------
   renderHistory(sessions, { onDownload, onDelete }) {
     const el = this.el;
-    el.historyCount.textContent = `${sessions.length} ${sessions.length === 1 ? "set" : "sets"} saved`;
+    el.legacyCount.textContent = `${sessions.length} ${sessions.length === 1 ? "set" : "sets"}`;
+    el.legacyHistory.hidden = sessions.length === 0;
     el.historyList.replaceChildren();
-    if (sessions.length === 0) {
-      el.historyList.innerHTML = '<div class="empty-history"><span class="empty-icon" aria-hidden="true">↗</span><strong>No sets yet</strong><span>Your saved workouts and CSV files will show up here.</span></div>';
-      return;
-    }
+    if (sessions.length === 0) return;
     for (const saved of sessions) {
       const item = document.createElement("article");
       item.className = "history-item";
@@ -431,28 +397,10 @@ export class Views {
       removeButton.className = "icon-button delete-button";
       removeButton.textContent = "Delete";
       removeButton.setAttribute("aria-label", `Delete ${saved.exercise}`);
-      removeButton.addEventListener("click", () => onDelete(saved));
+      removeButton.addEventListener("click", () => onDelete(saved, removeButton));
       actions.append(exportButton, removeButton);
       item.append(icon, info, actions);
       el.historyList.append(item);
-    }
-  }
-
-  // Keep Tab focus inside whichever modal is open.
-  trapFocus(event) {
-    if (event.key !== "Tab" || this.el.repReviewDialog.hidden) return;
-    const dialog = this.el.repReviewDialog.querySelector('[role="dialog"]');
-    const focusable = [...dialog.querySelectorAll("button:not(:disabled), input:not(:disabled)")]
-      .filter((element) => !element.closest("[hidden]"));
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && (document.activeElement === dialog || document.activeElement === first || !dialog.contains(document.activeElement))) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && (document.activeElement === last || !dialog.contains(document.activeElement))) {
-      event.preventDefault();
-      first.focus();
     }
   }
 }

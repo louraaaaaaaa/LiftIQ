@@ -1,5 +1,6 @@
+import { DB_VERSION, storesToCreate } from "./workout-storage.js";
+
 const DB_NAME = "liftiq-local";
-const DB_VERSION = 2;
 const STORE_NAME = "sessions";
 const RAW_STORE_NAME = "rawSessions";
 
@@ -11,14 +12,12 @@ export class SessionStorage {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
       request.onupgradeneeded = (event) => {
         const database = request.result;
-        // Migration keeps the existing "sessions" store untouched; v2 adds "rawSessions".
-        if (event.oldVersion < 1) {
-          const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
-          store.createIndex("createdAt", "createdAt");
-        }
-        if (event.oldVersion < 2) {
-          const rawStore = database.createObjectStore(RAW_STORE_NAME, { keyPath: "id" });
-          rawStore.createIndex("createdAt", "createdAt");
+        // Additive migration only: existing stores (sessions, rawSessions) are never touched;
+        // v3 adds the workout stores (see workout-storage.js storesToCreate).
+        for (const spec of storesToCreate(event.oldVersion, DB_VERSION)) {
+          if (database.objectStoreNames.contains(spec.name)) continue;
+          const store = database.createObjectStore(spec.name, spec.options);
+          for (const [name, path] of spec.indexes) store.createIndex(name, path);
         }
       };
       request.onsuccess = () => resolve(request.result);

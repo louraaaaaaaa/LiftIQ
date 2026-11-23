@@ -53,10 +53,10 @@ test("advertising: service UUID is advertised and the name prefix matches the ap
   }
 });
 
-test("packet length 18 in firmware header, stable app and dev app", () => {
+test("packet length 18 in firmware header, stable app and the sensor package (source of the dev app)", () => {
   assert.match(header, /#define\s+LIFTIQ_TELEMETRY_V1_LENGTH\s+18\b/);
   assert.match(stableSource, /const PACKET_LENGTH = 18;/);
-  assert.match(readFileSync(resolve(REPO, "app/dev/protocol.js"), "utf8"), /const PACKET_LENGTH = 18;/);
+  assert.match(readFileSync(resolve(REPO, "packages/liftiq-sensor/src/protocol.js"), "utf8"), /const PACKET_LENGTH = 18;/);
   assert.match(ino, /uint8_t payload\[LIFTIQ_TELEMETRY_V1_LENGTH\]/);
 });
 

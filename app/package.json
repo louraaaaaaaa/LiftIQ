@@ -8,8 +8,12 @@
     "test": "node --test \"dev/test/*.test.js\"",
     "test:stable": "node --test \"stable/test/*.test.js\"",
     "compat": "node --test \"../tests/compat/*.test.js\"",
-    "test:all": "npm run test && npm run test:stable && npm run compat && npm run test:tools",
-    "test:tools": "python -m pytest -p no:cacheprovider ../tools/ble ../tools/trajectory -q",
+    "test:sensor": "node --test \"../packages/liftiq-sensor/test/*.test.js\"",
+    "vendor": "node ../tools/vendor-sensor.mjs --target dev/vendor",
+    "vendor:check": "node ../tools/vendor-sensor.mjs --target dev/vendor --check",
+    "check:links": "node ../tools/check-links.mjs",
+    "test:all": "npm run vendor:check && npm run check:links && npm run test && npm run test:sensor && npm run test:stable && npm run compat && npm run test:tools",
+    "test:tools": "python -m pytest -p no:cacheprovider ../tools/ble ../tools/trajectory ../tools/livesets -q",
     "release": "node ../tools/release-app.mjs"
   }
 }

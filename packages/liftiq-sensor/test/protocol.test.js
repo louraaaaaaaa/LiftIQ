@@ -14,7 +14,7 @@ import {
   NOTIFY_UUID,
   SERVICE_UUID,
   WRITE_UUID,
-} from "../protocol.js";
+} from "../src/protocol.js";
 
 function packet({ phase = 0, calibration = 0, reps = 0, batteryMillivolts = 3900, seq = 0 } = {}) {
   const buffer = new ArrayBuffer(18);

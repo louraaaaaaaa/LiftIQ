@@ -1,0 +1,386 @@
+{
+ "description": "Golden data for the seated cable row sets recorded 2026-11-22. Counts confirmed by the user; prototype_pulses are the values of tools/livesets/analyze_live_sets.py (rounded as exported). Immutable.",
+ "sets": [
+  {
+   "label": "29c819f1",
+   "file": "liftiq-2026-11-20-29c819f1.csv",
+   "reps_excluding_setup": 8,
+   "reps_including_setup": 9,
+   "setup_pull_flagged": true,
+   "prototype_pulses": [
+    {
+     "pulse": 1,
+     "t_s": 13.52,
+     "setup_pull": true,
+     "peak_velocity_m_s": 0.61,
+     "upstroke_cm_est": 46.0,
+     "upstroke_s": 1.22
+    },
+    {
+     "pulse": 2,
+     "t_s": 15.8,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.79,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.62
+    },
+    {
+     "pulse": 3,
+     "t_s": 18.38,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.71,
+     "upstroke_cm_est": 31.0,
+     "upstroke_s": 0.66
+    },
+    {
+     "pulse": 4,
+     "t_s": 21.16,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.77,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.68
+    },
+    {
+     "pulse": 5,
+     "t_s": 23.82,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.74,
+     "upstroke_cm_est": 34.0,
+     "upstroke_s": 0.68
+    },
+    {
+     "pulse": 6,
+     "t_s": 26.62,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.71,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.68
+    },
+    {
+     "pulse": 7,
+     "t_s": 29.52,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.57,
+     "upstroke_cm_est": 31.0,
+     "upstroke_s": 0.76
+    },
+    {
+     "pulse": 8,
+     "t_s": 32.86,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.63,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.76
+    },
+    {
+     "pulse": 9,
+     "t_s": 36.4,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.54,
+     "upstroke_cm_est": 30.0,
+     "upstroke_s": 0.82
+    }
+   ]
+  },
+  {
+   "label": "594989b0",
+   "file": "liftiq-2026-11-20-594989b0.csv",
+   "reps_excluding_setup": 8,
+   "reps_including_setup": 9,
+   "setup_pull_flagged": true,
+   "prototype_pulses": [
+    {
+     "pulse": 1,
+     "t_s": 14.1,
+     "setup_pull": true,
+     "peak_velocity_m_s": 0.69,
+     "upstroke_cm_est": 57.0,
+     "upstroke_s": 1.48
+    },
+    {
+     "pulse": 2,
+     "t_s": 15.76,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.78,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.62
+    },
+    {
+     "pulse": 3,
+     "t_s": 18.16,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.77,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.64
+    },
+    {
+     "pulse": 4,
+     "t_s": 20.58,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.71,
+     "upstroke_cm_est": 31.0,
+     "upstroke_s": 0.64
+    },
+    {
+     "pulse": 5,
+     "t_s": 23.3,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.78,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.7
+    },
+    {
+     "pulse": 6,
+     "t_s": 26.16,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.69,
+     "upstroke_cm_est": 35.0,
+     "upstroke_s": 0.72
+    },
+    {
+     "pulse": 7,
+     "t_s": 29.18,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.72,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.74
+    },
+    {
+     "pulse": 8,
+     "t_s": 32.12,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.58,
+     "upstroke_cm_est": 33.0,
+     "upstroke_s": 0.82
+    },
+    {
+     "pulse": 9,
+     "t_s": 35.44,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.53,
+     "upstroke_cm_est": 31.0,
+     "upstroke_s": 0.86
+    }
+   ]
+  },
+  {
+   "label": "86ae3b5f",
+   "file": "liftiq-2026-11-20-86ae3b5f.csv",
+   "reps_excluding_setup": 7,
+   "reps_including_setup": 8,
+   "setup_pull_flagged": true,
+   "prototype_pulses": [
+    {
+     "pulse": 1,
+     "t_s": 4.22,
+     "setup_pull": true,
+     "peak_velocity_m_s": 0.76,
+     "upstroke_cm_est": 55.0,
+     "upstroke_s": 1.44
+    },
+    {
+     "pulse": 2,
+     "t_s": 6.3,
+     "setup_pull": false,
+     "peak_velocity_m_s": 1.04,
+     "upstroke_cm_est": 44.0,
+     "upstroke_s": 0.62
+    },
+    {
+     "pulse": 3,
+     "t_s": 8.68,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.92,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.56
+    },
+    {
+     "pulse": 4,
+     "t_s": 11.06,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.9,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.56
+    },
+    {
+     "pulse": 5,
+     "t_s": 13.7,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.88,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.6
+    },
+    {
+     "pulse": 6,
+     "t_s": 16.46,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.84,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.62
+    },
+    {
+     "pulse": 7,
+     "t_s": 19.2,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.83,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.64
+    },
+    {
+     "pulse": 8,
+     "t_s": 21.98,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.82,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.66
+    }
+   ]
+  },
+  {
+   "label": "86c1eceb",
+   "file": "liftiq-2026-11-20-86c1eceb.csv",
+   "reps_excluding_setup": 5,
+   "reps_including_setup": 6,
+   "setup_pull_flagged": true,
+   "prototype_pulses": [
+    {
+     "pulse": 1,
+     "t_s": 12.46,
+     "setup_pull": true,
+     "peak_velocity_m_s": 0.73,
+     "upstroke_cm_est": 49.0,
+     "upstroke_s": 1.1
+    },
+    {
+     "pulse": 2,
+     "t_s": 14.82,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.69,
+     "upstroke_cm_est": 32.0,
+     "upstroke_s": 0.66
+    },
+    {
+     "pulse": 3,
+     "t_s": 17.44,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.7,
+     "upstroke_cm_est": 32.0,
+     "upstroke_s": 0.66
+    },
+    {
+     "pulse": 4,
+     "t_s": 20.1,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.63,
+     "upstroke_cm_est": 29.0,
+     "upstroke_s": 0.68
+    },
+    {
+     "pulse": 5,
+     "t_s": 23.16,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.62,
+     "upstroke_cm_est": 31.0,
+     "upstroke_s": 0.72
+    },
+    {
+     "pulse": 6,
+     "t_s": 26.34,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.46,
+     "upstroke_cm_est": 23.0,
+     "upstroke_s": 0.72
+    }
+   ]
+  },
+  {
+   "label": "d0656b91",
+   "file": "liftiq-2026-11-20-d0656b91.csv",
+   "reps_excluding_setup": 9,
+   "reps_including_setup": 10,
+   "setup_pull_flagged": true,
+   "prototype_pulses": [
+    {
+     "pulse": 1,
+     "t_s": 3.7,
+     "setup_pull": true,
+     "peak_velocity_m_s": 0.89,
+     "upstroke_cm_est": 43.0,
+     "upstroke_s": 0.82
+    },
+    {
+     "pulse": 2,
+     "t_s": 5.58,
+     "setup_pull": false,
+     "peak_velocity_m_s": 1.17,
+     "upstroke_cm_est": 40.0,
+     "upstroke_s": 0.56
+    },
+    {
+     "pulse": 3,
+     "t_s": 8.06,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.98,
+     "upstroke_cm_est": 35.0,
+     "upstroke_s": 0.54
+    },
+    {
+     "pulse": 4,
+     "t_s": 10.5,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.95,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.58
+    },
+    {
+     "pulse": 5,
+     "t_s": 13.04,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.96,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.56
+    },
+    {
+     "pulse": 6,
+     "t_s": 15.54,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.93,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.6
+    },
+    {
+     "pulse": 7,
+     "t_s": 18.28,
+     "setup_pull": false,
+     "peak_velocity_m_s": 1.0,
+     "upstroke_cm_est": 38.0,
+     "upstroke_s": 0.58
+    },
+    {
+     "pulse": 8,
+     "t_s": 21.66,
+     "setup_pull": false,
+     "peak_velocity_m_s": 1.0,
+     "upstroke_cm_est": 40.0,
+     "upstroke_s": 0.62
+    },
+    {
+     "pulse": 9,
+     "t_s": 24.58,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.96,
+     "upstroke_cm_est": 37.0,
+     "upstroke_s": 0.58
+    },
+    {
+     "pulse": 10,
+     "t_s": 27.3,
+     "setup_pull": false,
+     "peak_velocity_m_s": 0.91,
+     "upstroke_cm_est": 36.0,
+     "upstroke_s": 0.6
+    }
+   ]
+  }
+ ]
+}

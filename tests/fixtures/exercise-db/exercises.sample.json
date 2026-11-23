@@ -1,0 +1,740 @@
+[
+ {
+  "id": "0861",
+  "name": "cable seated row",
+  "category": "back",
+  "body_part": "back",
+  "equipment": "cable",
+  "instruction_steps": {
+   "en": [
+    "Sit on the cable row machine with your feet flat on the footrests and your knees slightly bent.",
+    "Grasp the handles with an overhand grip, keeping your back straight and your shoulders relaxed.",
+    "Pull the handles towards your body, squeezing your shoulder blades together.",
+    "Pause for a moment at the peak of the movement, then slowly release the handles back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Siediti sulla macchina a remi con i piedi piatti sui piedi e le ginocchia leggermente piegate.",
+    "Afferra le maniglie con una presa sopra la mano, tenendo la schiena dritta e le spalle rilassate.",
+    "Tira le maniglie verso il corpo, stringendo le scapole insieme.",
+    "Fermati un attimo al picco del movimento, poi rilasci lentamente le maniglie alla posizione iniziale.",
+    "Ripeti per il numero desiderato di ripetizioni."
+   ]
+  },
+  "muscle_group": "biceps",
+  "secondary_muscles": [
+   "biceps",
+   "forearms"
+  ],
+  "target": "upper back",
+  "image": "images/0861-fUBheHs.jpg",
+  "gif_url": "videos/0861-fUBheHs.gif",
+  "media_id": "fUBheHs",
+  "created_at": "2026-03-18T12:31:32.875996+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "2330",
+  "name": "cable lat pulldown full range of motion",
+  "category": "back",
+  "body_part": "back",
+  "equipment": "cable",
+  "instruction_steps": {
+   "en": [
+    "Sit on the lat pulldown machine with your knees positioned under the pads.",
+    "Grasp the cable bar with an overhand grip, slightly wider than shoulder-width apart.",
+    "Lean back slightly and keep your chest up, maintaining a slight arch in your lower back.",
+    "Pull the bar down towards your upper chest, squeezing your shoulder blades together.",
+    "Pause for a moment at the bottom of the movement, then slowly release the bar back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Siediti sulla macchina per il lat pulldown con le ginocchia posizionate sotto le protezioni.",
+    "Afferra la barra con una presa sopra la mano, leggermente più larga della larghezza delle spalle.",
+    "Inclinati leggermente all'indietro e tieni il petto sollevato, mantenendo un leggero arco nella parte bassa della schiena.",
+    "Tira la barra verso il torace superiore, stringendo le scapole insieme.",
+    "Fermati un attimo alla base del movimento, poi rilasci lentamente la barra alla posizione iniziale.",
+    "Ripeti per il numero desiderato di ripetizioni."
+   ]
+  },
+  "muscle_group": "biceps",
+  "secondary_muscles": [
+   "biceps",
+   "rhomboids",
+   "rear deltoids"
+  ],
+  "target": "lats",
+  "image": "images/2330-LEprlgG.jpg",
+  "gif_url": "videos/2330-LEprlgG.gif",
+  "media_id": "LEprlgG",
+  "created_at": "2026-03-18T12:31:32.874773+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0576",
+  "name": "lever chest press",
+  "category": "chest",
+  "body_part": "chest",
+  "equipment": "leverage machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat height and position yourself on the machine with your back flat against the pad.",
+    "Grasp the handles with an overhand grip and position your elbows at a 90-degree angle.",
+    "Push the handles forward until your arms are fully extended, exhaling during the movement.",
+    "Pause briefly at the end of the movement, then slowly return to the starting position, inhaling as you do so.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regolare l'altezza del sedile e posizionarsi sulla macchina con la schiena appoggiata al cuscino.",
+    "Afferrare le maniglie con una presa prona e posizionare i gomiti con un angolo di 90 gradi.",
+    "Spingi le maniglie in avanti finché le braccia non sono completamente distese, espirando durante il movimento.",
+    "Fai una breve pausa alla fine del movimento, quindi ritorna lentamente alla posizione di partenza, inspirando mentre lo fai.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "triceps",
+  "secondary_muscles": [
+   "triceps",
+   "shoulders"
+  ],
+  "target": "pectorals",
+  "image": "images/0576-DOoWcnA.jpg",
+  "gif_url": "videos/0576-DOoWcnA.gif",
+  "media_id": "DOoWcnA",
+  "created_at": "2026-03-18T12:31:32.886189+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0603",
+  "name": "lever shoulder press",
+  "category": "shoulders",
+  "body_part": "shoulders",
+  "equipment": "leverage machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat height and position yourself on the machine with your back against the backrest.",
+    "Grasp the handles with an overhand grip and position your hands at shoulder level.",
+    "Push the handles upward until your arms are fully extended, but do not lock your elbows.",
+    "Pause for a moment at the top, then slowly lower the handles back down to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regolare l'altezza del sedile e posizionarsi sulla macchina con la schiena appoggiata allo schienale.",
+    "Afferrare le maniglie con una presa prona e posizionare le mani all'altezza delle spalle.",
+    "Spingere le maniglie verso l'alto finché le braccia non sono completamente distese, ma non bloccare i gomiti.",
+    "Fermati per un momento in alto, quindi abbassa lentamente le maniglie fino alla posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "triceps",
+  "secondary_muscles": [
+   "triceps",
+   "chest"
+  ],
+  "target": "delts",
+  "image": "images/0603-67n3r98.jpg",
+  "gif_url": "videos/0603-67n3r98.gif",
+  "media_id": "67n3r98",
+  "created_at": "2026-03-18T12:31:32.887176+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "1463",
+  "name": "sled 45° leg press (side pov)",
+  "category": "upper legs",
+  "body_part": "upper legs",
+  "equipment": "sled machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat of the sled machine so that your knees are at a 90-degree angle when your feet are on the footplate.",
+    "Sit on the sled machine with your back flat against the backrest and your feet shoulder-width apart on the footplate.",
+    "Grip the handles on the sides of the seat for stability.",
+    "Push against the footplate to extend your legs, straightening them completely.",
+    "Pause for a moment at the top, then slowly bend your knees to lower the footplate back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regola il sedile della macchina da slitta in modo che le ginocchia formino un angolo di 90 gradi quando i piedi sono sulla pedana.",
+    "Sedersi sulla macchina da slitta con la schiena appoggiata allo schienale e i piedi alla larghezza delle spalle sulla pedana.",
+    "Afferrare le maniglie ai lati del sedile per garantire stabilità.",
+    "Spingere contro la pedana per estendere le gambe, raddrizzandole completamente.",
+    "Fermati per un momento in alto, quindi piega lentamente le ginocchia per riportare la pedana nella posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "quadriceps",
+  "secondary_muscles": [
+   "quadriceps",
+   "hamstrings",
+   "calves"
+  ],
+  "target": "glutes",
+  "image": "images/1463-2Qh2J1e.jpg",
+  "gif_url": "videos/1463-2Qh2J1e.gif",
+  "media_id": "2Qh2J1e",
+  "created_at": "2026-03-18T12:31:32.890208+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0585",
+  "name": "lever leg extension",
+  "category": "upper legs",
+  "body_part": "upper legs",
+  "equipment": "leverage machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat height and backrest of the machine to fit your body.",
+    "Sit on the machine with your back against the backrest and your feet on the footpad.",
+    "Grasp the handles or sidebars for stability.",
+    "Extend your legs forward by straightening your knees, lifting the weight.",
+    "Pause for a moment at the top, then slowly lower the weight back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regola l'altezza del sedile e lo schienale della macchina per adattarli al tuo corpo.",
+    "Sedersi sulla macchina con la schiena appoggiata allo schienale e i piedi sul poggiapiedi.",
+    "Afferrare le maniglie o le barre laterali per garantire stabilità.",
+    "Estendi le gambe in avanti raddrizzando le ginocchia, sollevando il peso.",
+    "Fermati per un momento in alto, quindi abbassa lentamente il peso nella posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "hamstrings",
+  "secondary_muscles": [
+   "hamstrings"
+  ],
+  "target": "quads",
+  "image": "images/0585-my33uHU.jpg",
+  "gif_url": "videos/0585-my33uHU.gif",
+  "media_id": "my33uHU",
+  "created_at": "2026-03-18T12:31:32.886517+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0599",
+  "name": "lever seated leg curl",
+  "category": "upper legs",
+  "body_part": "upper legs",
+  "equipment": "leverage machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the machine to fit your body and sit on it with your back against the backrest.",
+    "Place your lower legs under the padded lever, just above your ankles.",
+    "Grasp the handles on the sides of the machine for support.",
+    "Keeping your upper legs stationary, exhale and curl your legs up as far as possible.",
+    "Hold the contracted position for a brief pause as you squeeze your hamstrings.",
+    "Inhale and slowly lower the lever back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regola la macchina per adattarla al tuo corpo e siediti con la schiena contro lo schienale.",
+    "Posiziona la parte inferiore delle gambe sotto la leva imbottita, appena sopra le caviglie.",
+    "Afferrare le maniglie ai lati della macchina per sostenersi.",
+    "Mantenendo ferma la parte superiore delle gambe, espira e piega le gambe il più possibile.",
+    "Mantieni la posizione contratta per una breve pausa mentre contrai i muscoli posteriori della coscia.",
+    "Inspira e abbassa lentamente la leva nella posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "calves",
+  "secondary_muscles": [
+   "calves"
+  ],
+  "target": "hamstrings",
+  "image": "images/0599-Zg3XY7P.jpg",
+  "gif_url": "videos/0599-Zg3XY7P.gif",
+  "media_id": "Zg3XY7P",
+  "created_at": "2026-03-18T12:31:32.887065+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0241",
+  "name": "cable triceps pushdown (v-bar)",
+  "category": "upper arms",
+  "body_part": "upper arms",
+  "equipment": "cable",
+  "instruction_steps": {
+   "en": [
+    "Attach a v-bar attachment to the cable machine at the highest setting.",
+    "Stand facing the cable machine with your feet shoulder-width apart.",
+    "Grasp the v-bar with an overhand grip, palms facing down, and your hands shoulder-width apart.",
+    "Keep your elbows close to your sides and your upper arms stationary throughout the exercise.",
+    "Engage your triceps and exhale as you push the v-bar down until your arms are fully extended.",
+    "Pause for a moment at the bottom of the movement, squeezing your triceps.",
+    "Inhale as you slowly return the v-bar to the starting position, maintaining control.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Collega un attacco a V-bar alla macchina a cavo al massimo dei punti.",
+    "Stai di fronte alla macchina per cavi con i piedi a larghezza delle spalle.",
+    "Afferra la V-bar con una presa sopra la mano, i palmi rivolti verso il basso e le mani alla larghezza delle spalle.",
+    "Tieni i gomiti vicini ai fianchi e le braccia superiori ferme durante l'esercizio.",
+    "Attiva i tricipiti ed espira mentre spingi la V-bar verso il basso finché le braccia non sono completamente estese.",
+    "Fermati un attimo alla base del movimento, stringendo i tricipiti.",
+    "Inspira mentre riporti lentamente la V-bar alla posizione di partenza, mantenendo il controllo.",
+    "Ripeti per il numero desiderato di ripetizioni."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms"
+  ],
+  "target": "triceps",
+  "image": "images/0241-gAwDzB3.jpg",
+  "gif_url": "videos/0241-gAwDzB3.gif",
+  "media_id": "gAwDzB3",
+  "created_at": "2026-03-18T12:31:32.876584+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0868",
+  "name": "cable curl",
+  "category": "upper arms",
+  "body_part": "upper arms",
+  "equipment": "cable",
+  "instruction_steps": {
+   "en": [
+    "Stand facing the cable machine with your feet shoulder-width apart.",
+    "Grasp the cable attachment with an underhand grip, palms facing up.",
+    "Keep your elbows close to your sides and your upper arms stationary.",
+    "Exhale and curl the cable attachment towards your shoulders, contracting your biceps.",
+    "Pause for a moment at the top of the movement, squeezing your biceps.",
+    "Inhale and slowly lower the cable attachment back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Stai di fronte alla macchina per cavi con i piedi a larghezza delle spalle.",
+    "Afferra il cavo con una presa sotto, palmi rivolti verso l'alto.",
+    "Tieni i gomiti vicini ai fianchi e le braccia superiori ferme.",
+    "Espira e arrotola il cavo verso le spalle, contraendo i bicipiti.",
+    "Fermati un attimo all'inizio del movimento, stringendo i bicipiti.",
+    "Inspira e abbassa lentamente il collegamento del cavo fino alla posizione iniziale.",
+    "Ripeti per il numero desiderato di ripetizioni."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms"
+  ],
+  "target": "biceps",
+  "image": "images/0868-G08RZcQ.jpg",
+  "gif_url": "videos/0868-G08RZcQ.gif",
+  "media_id": "G08RZcQ",
+  "created_at": "2026-03-18T12:31:32.874298+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0596",
+  "name": "lever seated fly",
+  "category": "chest",
+  "body_part": "chest",
+  "equipment": "leverage machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat height and position yourself on the machine with your back against the pad.",
+    "Grasp the handles with a pronated grip and keep your elbows slightly bent.",
+    "Exhale and push the handles forward, bringing them together in front of your chest.",
+    "Pause for a moment, squeezing your chest muscles.",
+    "Inhale and slowly return to the starting position, allowing your chest muscles to stretch.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regolare l'altezza del sedile e posizionarsi sulla macchina con la schiena appoggiata al cuscino.",
+    "Afferrare le maniglie con presa prona e tenere i gomiti leggermente piegati.",
+    "Espira e spingi le maniglie in avanti, unendole davanti al petto.",
+    "Fai una pausa per un momento, contraendo i muscoli del torace.",
+    "Inspira e ritorna lentamente alla posizione di partenza, permettendo ai muscoli del torace di allungarsi.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "deltoids",
+  "secondary_muscles": [
+   "deltoids",
+   "trapezius"
+  ],
+  "target": "pectorals",
+  "image": "images/0596-v3xmPAR.jpg",
+  "gif_url": "videos/0596-v3xmPAR.gif",
+  "media_id": "v3xmPAR",
+  "created_at": "2026-03-18T12:31:32.886987+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0001",
+  "name": "3/4 sit-up",
+  "category": "waist",
+  "body_part": "waist",
+  "equipment": "body weight",
+  "instruction_steps": {
+   "en": [
+    "Lie flat on your back with your knees bent and feet flat on the ground.",
+    "Place your hands behind your head with your elbows pointing outwards.",
+    "Engaging your abs, slowly lift your upper body off the ground, curling forward until your torso is at a 45-degree angle.",
+    "Pause for a moment at the top, then slowly lower your upper body back down to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Sdraiati sulla schiena con le ginocchia piegate e i piedi appoggiati a terra.",
+    "Metti le mani dietro la testa con i gomiti rivolti verso l'esterno.",
+    "Coinvolgendo gli addominali, solleva lentamente la parte superiore del corpo da terra, piegandoti in avanti finché il busto non forma un angolo di 45 gradi.",
+    "Fermati per un momento in alto, quindi abbassa lentamente la parte superiore del corpo fino alla posizione di partenza.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "hip flexors",
+  "secondary_muscles": [
+   "hip flexors",
+   "lower back"
+  ],
+  "target": "abs",
+  "image": "images/0001-2gPfomN.jpg",
+  "gif_url": "videos/0001-2gPfomN.gif",
+  "media_id": "2gPfomN",
+  "created_at": "2026-03-18T12:31:32.854798+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0023",
+  "name": "barbell alternate biceps curl",
+  "category": "upper arms",
+  "body_part": "upper arms",
+  "equipment": "barbell",
+  "instruction_steps": {
+   "en": [
+    "Stand up straight with your feet shoulder-width apart and hold a barbell in each hand, palms facing forward.",
+    "Keep your upper arms stationary and exhale as you curl the weights while contracting your biceps.",
+    "Continue to raise the barbells until your biceps are fully contracted and the barbells are at shoulder level.",
+    "Hold the contracted position for a brief pause as you squeeze your biceps.",
+    "Inhale as you slowly begin to lower the barbells back to the starting position.",
+    "Repeat for the desired number of repetitions, alternating arms."
+   ],
+   "it": [
+    "Stai dritto con i piedi alla larghezza delle spalle e tieni un bilanciere in ciascuna mano, con i palmi rivolti in avanti.",
+    "Mantieni ferma la parte superiore delle braccia ed espira mentre pieghi i pesi mentre contrai i bicipiti.",
+    "Continua a sollevare i bilancieri finché i bicipiti non saranno completamente contratti e i bilancieri saranno all'altezza delle spalle.",
+    "Mantieni la posizione contratta per una breve pausa mentre contrai i bicipiti.",
+    "Inspira mentre inizi lentamente ad abbassare i bilancieri nella posizione iniziale.",
+    "Ripeti per il numero di ripetizioni desiderato, alternando le braccia."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms"
+  ],
+  "target": "biceps",
+  "image": "images/0023-Yza7XrQ.jpg",
+  "gif_url": "videos/0023-Yza7XrQ.gif",
+  "media_id": "Yza7XrQ",
+  "created_at": "2026-03-18T12:31:32.870212+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "1274",
+  "name": "deep push up",
+  "category": "chest",
+  "body_part": "chest",
+  "equipment": "dumbbell",
+  "instruction_steps": {
+   "en": [
+    "Start in a high plank position with your hands slightly wider than shoulder-width apart and your body in a straight line.",
+    "Lower your chest towards the ground by bending your elbows, keeping them close to your body.",
+    "Push through your palms to extend your arms and return to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Inizia in posizione di plank alta, con le mani leggermente più larghe della larghezza delle spalle e il corpo in linea retta.",
+    "Abbassa il petto verso il suolo piegando i gomiti, tenendoli vicini al corpo.",
+    "Spingi attraverso i palmi per estendere le braccia e tornare alla posizione iniziale.",
+    "Ripeti per il numero desiderato di ripetizioni."
+   ]
+  },
+  "muscle_group": "triceps",
+  "secondary_muscles": [
+   "triceps",
+   "shoulders"
+  ],
+  "target": "pectorals",
+  "image": "images/1274-vptOQ4N.jpg",
+  "gif_url": "videos/1274-vptOQ4N.gif",
+  "media_id": "vptOQ4N",
+  "created_at": "2026-03-18T12:31:32.877433+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0968",
+  "name": "band alternating biceps curl",
+  "category": "upper arms",
+  "body_part": "upper arms",
+  "equipment": "band",
+  "instruction_steps": {
+   "en": [
+    "Stand with your feet shoulder-width apart and hold the band with an underhand grip, palms facing up.",
+    "Keep your elbows close to your sides and slowly curl one arm up towards your shoulder, squeezing your biceps at the top.",
+    "Lower the arm back down to the starting position and repeat with the other arm.",
+    "Continue alternating arms for the desired number of repetitions."
+   ],
+   "it": [
+    "Stare con i piedi alla larghezza delle spalle e tenere la fascia con una presa subdola, con i palmi rivolti verso l'alto.",
+    "Tieni i gomiti vicini ai fianchi e piega lentamente un braccio verso la spalla, contraendo i bicipiti nella parte superiore.",
+    "Abbassare nuovamente il braccio nella posizione iniziale e ripetere con l'altro braccio.",
+    "Continua ad alternare le braccia per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms"
+  ],
+  "target": "biceps",
+  "image": "images/0968-3omWx6P.jpg",
+  "gif_url": "videos/0968-3omWx6P.gif",
+  "media_id": "3omWx6P",
+  "created_at": "2026-03-18T12:31:32.855724+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0746",
+  "name": "smith back shrug",
+  "category": "back",
+  "body_part": "back",
+  "equipment": "smith machine",
+  "instruction_steps": {
+   "en": [
+    "Stand with your feet shoulder-width apart and your knees slightly bent.",
+    "Grasp the barbell with an overhand grip, hands slightly wider than shoulder-width apart.",
+    "Keep your arms straight and allow the barbell to hang in front of your thighs.",
+    "Lift your shoulders straight up towards your ears, squeezing your traps at the top.",
+    "Hold for a moment, then lower your shoulders back down to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Stai con i piedi alla larghezza delle spalle e le ginocchia leggermente piegate.",
+    "Afferrare il bilanciere con una presa prona, con le mani leggermente più larghe della larghezza delle spalle.",
+    "Tieni le braccia tese e lascia che il bilanciere penda davanti alle cosce.",
+    "Solleva le spalle verso le orecchie, stringendo le trappole in alto.",
+    "Mantieni la posizione per un momento, quindi abbassa le spalle nella posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "shoulders",
+  "secondary_muscles": [
+   "shoulders"
+  ],
+  "target": "traps",
+  "image": "images/0746-MzNnwx9.jpg",
+  "gif_url": "videos/0746-MzNnwx9.gif",
+  "media_id": "MzNnwx9",
+  "created_at": "2026-03-18T12:31:32.890379+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0011",
+  "name": "assisted hanging knee raise",
+  "category": "waist",
+  "body_part": "waist",
+  "equipment": "assisted",
+  "instruction_steps": {
+   "en": [
+    "Hang from a pull-up bar with your arms fully extended and your palms facing away from you.",
+    "Engage your core muscles and lift your knees towards your chest, bending at the hips and knees.",
+    "Pause for a moment at the top of the movement, squeezing your abs.",
+    "Slowly lower your legs back down to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Appendi a una barra per trazioni con le braccia completamente distese e i palmi rivolti lontano da te.",
+    "Coinvolgi i muscoli centrali e solleva le ginocchia verso il petto, piegando i fianchi e le ginocchia.",
+    "Fai una pausa per un momento nella parte superiore del movimento, contraendo gli addominali.",
+    "Abbassa lentamente le gambe fino alla posizione di partenza.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "hip flexors",
+  "secondary_muscles": [
+   "hip flexors"
+  ],
+  "target": "abs",
+  "image": "images/0011-03lzqwk.jpg",
+  "gif_url": "videos/0011-03lzqwk.gif",
+  "media_id": "03lzqwk",
+  "created_at": "2026-03-18T12:31:32.855215+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0128",
+  "name": "battling ropes",
+  "category": "shoulders",
+  "body_part": "shoulders",
+  "equipment": "rope",
+  "instruction_steps": {
+   "en": [
+    "Stand with your feet shoulder-width apart and knees slightly bent.",
+    "Hold one end of the rope in each hand, with your palms facing each other.",
+    "Raise your arms to shoulder height, keeping your elbows slightly bent.",
+    "Begin making alternating waves with the ropes by rapidly raising and lowering each arm.",
+    "Continue for the desired duration or number of repetitions."
+   ],
+   "it": [
+    "Stai in piedi con i piedi alla larghezza delle spalle e le ginocchia leggermente piegate.",
+    "Tieni un'estremità della corda in ciascuna mano, con i palmi rivolti l'uno verso l'altro.",
+    "Alza le braccia all'altezza delle spalle, tenendo i gomiti leggermente piegati.",
+    "Inizia a fare onde alternate con le corde sollevando e abbassando rapidamente ogni braccio.",
+    "Continua per la durata o il numero di ripetizioni desiderate."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms",
+   "core"
+  ],
+  "target": "delts",
+  "image": "images/0128-RJa4tCo.jpg",
+  "gif_url": "videos/0128-RJa4tCo.gif",
+  "media_id": "RJa4tCo",
+  "created_at": "2026-03-18T12:31:32.87357+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "1496",
+  "name": "sledge hammer",
+  "category": "waist",
+  "body_part": "waist",
+  "equipment": "hammer",
+  "instruction_steps": {
+   "en": [
+    "Stand with your feet shoulder-width apart and hold the sledge hammer with both hands.",
+    "Engage your core and keep your back straight.",
+    "Swing the sledge hammer down towards the ground, using your core and upper body strength.",
+    "As you swing down, pivot your hips and transfer the force to the hammer.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Stai con i piedi alla larghezza delle spalle e tieni la mazza con entrambe le mani.",
+    "Coinvolgi il tuo core e mantieni la schiena dritta.",
+    "Fai oscillare la mazza verso il suolo, usando la forza del core e della parte superiore del corpo.",
+    "Mentre ti abbassi, ruota i fianchi e trasferisci la forza sul martello.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "forearms",
+  "secondary_muscles": [
+   "forearms",
+   "shoulders"
+  ],
+  "target": "abs",
+  "image": "images/1496-REXmfVC.jpg",
+  "gif_url": "videos/1496-REXmfVC.gif",
+  "media_id": "REXmfVC",
+  "created_at": "2026-03-18T12:31:32.890361+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "1383",
+  "name": "hack calf raise",
+  "category": "lower legs",
+  "body_part": "lower legs",
+  "equipment": "sled machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the sled machine to a comfortable weight.",
+    "Stand on the sled machine with your toes on the platform and your heels hanging off.",
+    "Hold onto the handles for stability.",
+    "Raise your heels as high as possible by pushing through the balls of your feet.",
+    "Pause for a moment at the top, then slowly lower your heels back down to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regolare la macchina a slitta su un peso confortevole.",
+    "Stai sulla macchina da slitta con le dita dei piedi sulla piattaforma e i talloni pendenti.",
+    "Aggrapparsi alle maniglie per stabilità.",
+    "Alza i talloni il più in alto possibile spingendo attraverso le punte dei piedi.",
+    "Fai una pausa per un momento in alto, quindi abbassa lentamente i talloni nella posizione iniziale.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "hamstrings",
+  "secondary_muscles": [
+   "hamstrings",
+   "glutes"
+  ],
+  "target": "calves",
+  "image": "images/1383-2ORFMoR.jpg",
+  "gif_url": "videos/1383-2ORFMoR.gif",
+  "media_id": "2ORFMoR",
+  "created_at": "2026-03-18T12:31:32.883967+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "2138",
+  "name": "stationary bike run v. 3",
+  "category": "cardio",
+  "body_part": "cardio",
+  "equipment": "stationary bike",
+  "instruction_steps": {
+   "en": [
+    "Adjust the seat height and position to ensure proper alignment.",
+    "Place your feet on the pedals and secure them with the straps if available.",
+    "Start pedaling at a comfortable pace.",
+    "Maintain a steady rhythm and increase the resistance as desired.",
+    "Engage your core muscles to maintain stability and proper posture.",
+    "Continue pedaling for the desired duration of your workout.",
+    "Gradually decrease the resistance and slow down before coming to a complete stop.",
+    "Stretch your legs and cool down after the workout."
+   ],
+   "it": [
+    "Regolare l'altezza e la posizione del sedile per garantire il corretto allineamento.",
+    "Metti i piedi sui pedali e fissali con le cinghie, se disponibili.",
+    "Inizia a pedalare a un ritmo confortevole.",
+    "Mantenere un ritmo costante e aumentare la resistenza come desiderato.",
+    "Coinvolgi i muscoli centrali per mantenere la stabilità e una postura corretta.",
+    "Continua a pedalare per la durata desiderata del tuo allenamento.",
+    "Diminuire gradualmente la resistenza e rallentare prima di fermarsi completamente.",
+    "Allunga le gambe e rinfrescati dopo l'allenamento."
+   ]
+  },
+  "muscle_group": "quadriceps",
+  "secondary_muscles": [
+   "quadriceps",
+   "hamstrings",
+   "calves"
+  ],
+  "target": "cardiovascular system",
+  "image": "images/2138-H1PESYI.jpg",
+  "gif_url": "videos/2138-H1PESYI.gif",
+  "media_id": "H1PESYI",
+  "created_at": "2026-03-18T12:31:32.904767+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ },
+ {
+  "id": "0738",
+  "name": "sled 45в° calf press",
+  "category": "lower legs",
+  "body_part": "lower legs",
+  "equipment": "sled machine",
+  "instruction_steps": {
+   "en": [
+    "Adjust the sled machine to a 45-degree angle.",
+    "Place your feet on the sled platform with your toes pointing forward.",
+    "Push the sled platform away from you by extending your ankles and calves.",
+    "Pause for a moment at the top, then slowly lower the sled platform back to the starting position.",
+    "Repeat for the desired number of repetitions."
+   ],
+   "it": [
+    "Regolare la macchina a slitta con un angolo di 45 gradi.",
+    "Posiziona i piedi sulla piattaforma della slitta con le dita rivolte in avanti.",
+    "Spingi la piattaforma della slitta lontano da te estendendo le caviglie e i polpacci.",
+    "Fermati per un momento in alto, quindi abbassa lentamente la piattaforma della slitta nella posizione di partenza.",
+    "Ripetere per il numero di ripetizioni desiderato."
+   ]
+  },
+  "muscle_group": "hamstrings",
+  "secondary_muscles": [
+   "hamstrings"
+  ],
+  "target": "calves",
+  "image": "images/0738-qCNVnaU.jpg",
+  "gif_url": "videos/0738-qCNVnaU.gif",
+  "media_id": "qCNVnaU",
+  "created_at": "2026-03-18T12:31:32.890152+00:00",
+  "attribution": "© Gym visual — https://gymvisual.com/"
+ }
+]

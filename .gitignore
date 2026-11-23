@@ -27,3 +27,10 @@ data/recordings/**/analysis/
 # OS
 .DS_Store
 Thumbs.db
+
+# OneDrive / editor temp files
+~$*
+*.tmp
+desktop.ini
+.~lock.*#
+*.swp

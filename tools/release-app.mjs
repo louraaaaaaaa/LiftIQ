@@ -23,6 +23,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { findDevBranding } from "./release-checks.mjs";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DEV = join(REPO, "app", "dev");
@@ -164,13 +165,8 @@ function buildStable(version, cacheVersion, targetDir) {
 function verifyBuild(dir, version) {
   const problems = [];
   const read = (name) => readFileSync(join(dir, name), "utf8");
-  const forbidden = [/liftiq-dev/i, /icon-dev/i, /LiftIQ Dev/, /class="dev-badge"/, /<!--dev:/];
   for (const file of listFiles(dir).filter((f) => /\.(html|js|webmanifest|svg|css)$/.test(f) && !f.startsWith("test/"))) {
-    const text = read(file);
-    for (const pattern of forbidden) {
-      if (file === "styles.css" && String(pattern).includes("dev-badge")) continue; // harmless unused rule
-      if (pattern.test(text)) problems.push(`${file} still matches ${pattern}`);
-    }
+    problems.push(...findDevBranding(file, read(file))); // patterns and the allow-list live in tools/release-checks.mjs
   }
   if (!/export const CHANNEL = "stable";/.test(read("channel.js"))) problems.push("channel.js is not CHANNEL stable");
   if (!read("channel.js").includes(`"${version}"`)) problems.push("channel.js version mismatch");

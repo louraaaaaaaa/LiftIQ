@@ -8,6 +8,9 @@ PC-side scripts for sensor bring-up and workout testing, grouped by transport:
 | `ble/` | `firmware_debug.py` (BLE dashboard) and its test, `check_protocol_serial.py` (verify the board's packet encoder against the golden vectors) |
 | `trajectory/` | offline trajectory analysis of raw 6-axis captures ([README](trajectory/README.md)) |
 | `release-app.mjs` | promotes `app/dev` to `app/stable` (see `app/README.md`) |
+| `vendor-sensor.mjs` | copies `packages/liftiq-sensor/src` into a consumer (`--target <dir>`, `--check` verifies; see `packages/liftiq-sensor/README.md`) |
+| `check-links.mjs` | fails on broken relative links between Markdown files (`node tools/check-links.mjs`; runs in `npm run test:all` and CI; skips `app/stable` and `hardware/`; file existence only) |
+| `release-checks.mjs` | pure helpers of the release tool's "no dev branding" check and its allow-list (tested in `tests/compat/release-verify.test.js`) |
 
 The raw IMU plotting and orientation tools use USB serial; `firmware_debug.py` connects over BLE.
 These are development tools, not part of the firmware or eventual phone app. Run them from their folder

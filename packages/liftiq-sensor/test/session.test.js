@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodeTelemetry } from "../protocol.js";
-import { PacketTracker } from "../packet-stats.js";
-import { SessionMachine, STATES, START_COMMAND } from "../session.js";
+import { decodeTelemetry } from "../src/protocol.js";
+import { PacketTracker } from "../src/packet-stats.js";
+import { SessionMachine, STATES, START_COMMAND } from "../src/session.js";
 
 function makeView({ status = 0, reps = 0, phase = 0, seq = 0, battery = 3900 } = {}) {
   const view = new DataView(new ArrayBuffer(18));

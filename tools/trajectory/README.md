@@ -1,6 +1,6 @@
 # tools/trajectory - offline trajectory experiment toolkit (Step 0)
 
-Takes raw 6-axis captures (raw CSV v1, see `docs/DEVELOPMENT.md` Step 0) from the BMI160 and measures how accurately
+Takes raw 6-axis captures (raw CSV v1, see `docs/history/DEVELOPMENT_HISTORY.md` Step 0) from the BMI160 and measures how accurately
 per-rep vertical range of motion (ROM), velocity and a 3D path can be reconstructed, with ablations. Purpose: decide
 whether the current IMU is good enough (gate: ~2 cm per-rep ROM error vs a tape measure) or better hardware is needed.
 numpy + matplotlib only (no scipy). No magnetometer is used.

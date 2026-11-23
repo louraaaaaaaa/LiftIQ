@@ -20,9 +20,14 @@ jobs:
           node-version: 22
       - name: g++ present (host-compiled firmware encoder test)
         run: g++ --version
+      - name: Markdown links resolve
+        run: node tools/check-links.mjs
       - name: App dev unit tests
         working-directory: app
         run: npm run test
+      - name: Sensor package unit tests and vendored copy in sync
+        working-directory: app
+        run: npm run test:sensor && npm run vendor:check
       - name: App stable unit tests
         working-directory: app
         run: npm run test:stable

@@ -1,0 +1,18 @@
+# Normalise line endings only where git detects text; never touch binaries.
+* text=auto
+
+# Binary assets: no EOL conversion, no textual diff.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.zip binary
+
+# Text that must keep its line endings on every platform.
+*.sh text eol=lf
+*.csv text
+*.ino text
+*.h text
